@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholaris LMS — Polytechnic University of Cabuyao</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-name">Scholaris<span>.</span></span>
+    <span class="logo-sub">Polytechnic University of Cabuyao</span>
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-link" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Management</div>
+      <div class="nav-link" data-page="students">
+        <span class="nav-icon">🎓</span> Students
+        <span class="nav-badge" id="sidebarStudentBadge">0</span>
+      </div>
+      <div class="nav-link" data-page="teachers">
+        <span class="nav-icon">👨‍🏫</span> Teachers
+        <span class="nav-badge" id="sidebarTeacherBadge">0</span>
+      </div>
+      <div class="nav-link" data-page="sections">
+        <span class="nav-icon">🏫</span> Sections
+        <span class="nav-badge" id="sidebarSectionBadge">0</span>
+      </div>
+      <div class="nav-link" data-page="courses">
+        <span class="nav-icon">📚</span> Subjects
+        <span class="nav-badge" id="sidebarCourseBadge">0</span>
+      </div>
+      <div class="nav-link" data-page="grades">
+        <span class="nav-icon">📝</span> Grades & Attendance
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Analytics</div>
+      <div class="nav-link" data-page="reports"><span class="nav-icon">📊</span> Reports</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">System</div>
+      <div class="nav-link" data-page="settings"><span class="nav-icon">⚙️</span> Settings</div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-chip">
+      <div class="admin-avatar" id="sidebarAvatar">?</div>
+      <div class="admin-info">
+        <strong id="sidebarUserName">—</strong>
+        <small id="sidebarUserRole">2IT-A · A.Y. 2025–2026</small>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+  <header class="topnav">
+    <div class="topnav-breadcrumb">
+      <span class="crumb-root">Scholaris</span>
+      <span class="sep">›</span>
+      <span class="crumb-current" id="breadcrumbCurrent">Dashboard</span>
+    </div>
+    <div class="topnav-right">
+      <span class="topnav-date" id="topnavDate"></span>
+      <span class="topnav-pill">2IT-A</span>
+      <div class="session-chip" id="sessionChip">
+        <span class="session-role" id="sessionRole"></span>
+        <span class="session-name" id="sessionName"></span>
+      </div>
+      <button class="btn-logout" onclick="app.logout()" title="Sign out">⎋ Logout</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page-view" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <h2>Dashboard</h2>
+          <p>Welcome back — here's a snapshot of your LMS.</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon green">🎓</div>
+          <div><span class="stat-val" id="dashStudents">0</span><span class="stat-label">Students</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">👨‍🏫</div>
+          <div><span class="stat-val" id="dashTeachers">0</span><span class="stat-label">Teachers</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🏫</div>
+          <div><span class="stat-val" id="dashSections">0</span><span class="stat-label">Sections</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">📚</div>
+          <div><span class="stat-val" id="dashCourses">0</span><span class="stat-label">Subjects</span></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">🕐</span> Recent Students</div>
+          </div>
+          <table class="mini-table">
+            <thead><tr><th>Name</th><th>ID</th><th>Section</th><th>Avg Grade</th></tr></thead>
+            <tbody id="recentStudentsBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">📋</span> Activity Log</div>
+          </div>
+          <div class="activity-list" id="activityList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS ── -->
+    <div class="page-view" id="page-students">
+      <div class="page-header">
+        <div><h2>Students</h2><p>Register and manage student records and enrollments.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">➕</span> Register New Student</div>
+          </div>
+          <div class="form-group">
+            <label for="stuName">Full Name</label>
+            <input type="text" id="stuName" placeholder="e.g. Juan Dela Cruz" autocomplete="off" oninput="this.value=this.value.replace(/[^a-zA-Z\s\-'.]/g,'')">
+            <span class="field-msg" id="stuName-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="stuEmail">Email Address</label>
+            <input type="email" id="stuEmail" placeholder="e.g. juan@email.com" autocomplete="off">
+            <span class="field-msg" id="stuEmail-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="stuId">Student ID</label>
+            <input type="text" id="stuId" placeholder="e.g. 202400001" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+            <span class="field-msg" id="stuId-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="stuSection">Section</label>
+            <select id="stuSection">
+              <option value="">— Select Section —</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="app.studentManager.add()">＋ Register Student</button>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">👥</span> Student Profiles</div>
+            <span class="student-count">0 student(s)</span>
+          </div>
+          <div class="search-row">
+            <input type="text" id="stuSearch" placeholder="🔍  Search students...">
+            <select id="stuField">
+              <option value="all">All Fields</option>
+              <option value="name">Name</option>
+              <option value="studentId">ID Number</option>
+              <option value="section">Section</option>
+            </select>
+          </div>
+          <div class="data-list" id="studentList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TEACHERS ── -->
+    <div class="page-view" id="page-teachers">
+      <div class="page-header">
+        <div><h2>Teachers</h2><p>Register and manage teacher accounts.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">➕</span> Register New Teacher</div>
+          </div>
+          <div class="form-group">
+            <label for="tchName">Full Name</label>
+            <input type="text" id="tchName" placeholder="e.g. Maria Santos" autocomplete="off">
+            <span class="field-msg" id="tchName-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="tchEmail">Email Address</label>
+            <input type="email" id="tchEmail" placeholder="e.g. msantos@pnc.edu.ph" autocomplete="off">
+            <span class="field-msg" id="tchEmail-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="tchId">Employee ID</label>
+            <input type="text" id="tchId" placeholder="e.g. EMP-001" autocomplete="off">
+            <span class="field-msg" id="tchId-msg"></span>
+          </div>
+          <div class="form-group">
+            <label for="tchDept">Department</label>
+            <input type="text" id="tchDept" placeholder="e.g. College of Computing Studies">
+          </div>
+          <button class="btn-primary" onclick="app.teacherManager.add()">＋ Register Teacher</button>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">👨‍🏫</span> Teacher Registry</div>
+            <span id="teacherCount" class="student-count">0 teacher(s)</span>
+          </div>
+          <div class="search-row">
+            <input type="text" id="tchSearch" placeholder="🔍  Search teachers...">
+          </div>
+          <div class="data-list" id="teacherList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTIONS ── -->
+    <div class="page-view" id="page-sections">
+      <div class="page-header">
+        <div><h2>Sections</h2><p>Manage sections and assign teachers.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">➕</span> Create New Section</div>
+          </div>
+          <div class="form-group">
+            <label for="secName">Section Name</label>
+            <input type="text" id="secName" placeholder="e.g. 2IT-A">
+          </div>
+          <div class="form-group">
+            <label for="secYear">Year Level</label>
+            <select id="secYear">
+              <option value="">— Select Year —</option>
+              <option>1st Year</option>
+              <option>2nd Year</option>
+              <option>3rd Year</option>
+              <option>4th Year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="secTeacher">Assigned Teacher</label>
+            <select id="secTeacher">
+              <option value="">— Select Teacher —</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="app.sectionManager.add()">＋ Create Section</button>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">🏫</span> Section List</div>
+            <span id="sectionCount" class="student-count">0 section(s)</span>
+          </div>
+          <div class="data-list" id="sectionList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SUBJECTS ── -->
+    <div class="page-view" id="page-courses">
+      <div class="page-header">
+        <div><h2>Subjects</h2><p>Create and manage the subject catalog.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">➕</span> Create New Subject</div>
+          </div>
+          <div class="form-group">
+            <label for="crsName">Subject Name</label>
+            <input type="text" id="crsName" placeholder="e.g. Data Structures">
+          </div>
+          <div class="form-group">
+            <label for="crsCode">Subject Code</label>
+            <input type="text" id="crsCode" placeholder="e.g. CS201">
+          </div>
+          <button class="btn-primary" onclick="app.courseManager.add()">＋ Add Subject</button>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">📋</span> Subject Catalog</div>
+            <span class="student-count" id="courseCount">0 subject(s)</span>
+          </div>
+          <div class="search-row">
+            <input type="text" id="crsSearch" placeholder="🔍  Search subjects...">
+          </div>
+          <div class="data-list" id="courseList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GRADES & ATTENDANCE ── -->
+    <div class="page-view" id="page-grades">
+      <div class="page-header">
+        <div><h2>Grades &amp; Attendance</h2><p>Record and manage student grades and attendance per subject.</p></div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-head">
+          <div class="card-title"><span class="card-title-icon">🔎</span> Select Student &amp; Subject</div>
+        </div>
+        <div class="search-row" style="flex-wrap:wrap;gap:10px;">
+          <select id="gradeStudentSelect" style="flex:1;min-width:180px;">
+            <option value="">— Select Student —</option>
+          </select>
+          <select id="gradeSubjectSelect" style="flex:1;min-width:180px;">
+            <option value="">— Select Subject —</option>
+          </select>
+          <button class="btn-ghost" onclick="app.gradesManager.load()">Load Record</button>
+        </div>
+      </div>
+
+      <div id="gradeRecordArea" style="display:none;">
+        <div class="two-col">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="card-title-icon">📝</span> Grade Entry</div>
+            </div>
+            <div id="gradeStudentInfo" style="margin-bottom:14px;padding:10px 12px;background:var(--green-faint);border-radius:var(--radius-sm);font-size:0.83rem;"></div>
+            <div class="form-group">
+              <label>Prelim Grade (0–100)</label>
+              <input type="number" id="gradePrelim" min="0" max="100" placeholder="e.g. 87">
+            </div>
+            <div class="form-group">
+              <label>Midterm Grade (0–100)</label>
+              <input type="number" id="gradeMidterm" min="0" max="100" placeholder="e.g. 90">
+            </div>
+            <div class="form-group">
+              <label>Finals Grade (0–100)</label>
+              <input type="number" id="gradeFinals" min="0" max="100" placeholder="e.g. 85">
+            </div>
+            <div class="form-group">
+              <label>Computed Final Grade</label>
+              <div id="computedGrade" class="computed-grade-box">—</div>
+            </div>
+            <button class="btn-primary" onclick="app.gradesManager.save()">💾 Save Grade</button>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title"><span class="card-title-icon">📅</span> Attendance Record</div>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="attendDate">
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="attendStatus">
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+                <option value="excused">Excused</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Remarks (optional)</label>
+              <input type="text" id="attendRemarks" placeholder="e.g. Medical certificate submitted">
+            </div>
+            <button class="btn-primary" onclick="app.gradesManager.addAttendance()" style="margin-bottom:14px;">＋ Log Attendance</button>
+
+            <div class="card-head" style="margin-top:10px;">
+              <div class="card-title" style="font-size:0.85rem;">Attendance History</div>
+              <div id="attendSummary" style="font-size:0.75rem;color:var(--n500);"></div>
+            </div>
+            <div class="data-list" id="attendanceList" style="max-height:200px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="gradeEmptyState" class="empty-state" style="margin-top:40px;">
+        <div class="empty-icon">📝</div>
+        <p>Select a student and subject above, then click <strong>Load Record</strong>.</p>
+      </div>
+    </div>
+
+    <!-- ── REPORTS ── -->
+    <div class="page-view" id="page-reports">
+      <div class="page-header">
+        <div><h2>Reports</h2><p>Enrollment analytics, grades, and student performance.</p></div>
+      </div>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-icon green">🎓</div>
+          <div><span class="stat-val" id="rptTotalStudents">0</span><span class="stat-label">Total Students</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">👨‍🏫</div>
+          <div><span class="stat-val" id="rptTotalTeachers">0</span><span class="stat-label">Total Teachers</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">📚</div>
+          <div><span class="stat-val" id="rptTotalCourses">0</span><span class="stat-label">Total Subjects</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🔗</div>
+          <div><span class="stat-val" id="rptTotalEnr">0</span><span class="stat-label">Total Enrollments</span></div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:20px;">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">📐</span> Key Metrics</div>
+          </div>
+          <div class="report-row">
+            <span class="r-label">Average subject load</span>
+            <span class="r-val" id="rptAvgLoad">0</span>
+          </div>
+          <div class="report-row">
+            <span class="r-label">Students with full load (≥ 3)</span>
+            <span class="r-val" id="rptFullLoad">0</span>
+          </div>
+          <div class="report-row">
+            <span class="r-label">Students with no enrollment</span>
+            <span class="r-val" id="rptNoEnr">0</span>
+          </div>
+          <div class="report-row">
+            <span class="r-label">Students with grades recorded</span>
+            <span class="r-val" id="rptWithGrades">0</span>
+          </div>
+          <div class="report-row">
+            <span class="r-label">Overall class average grade</span>
+            <span class="r-val" id="rptClassAvg">—</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">📊</span> Enrollment per Subject</div>
+          </div>
+          <div id="courseEnrollBars"></div>
+        </div>
+      </div>
+
+      <!-- Student Performance Table -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><span class="card-title-icon">🏆</span> Student Performance Report</div>
+          <div style="display:flex;gap:8px;">
+            <select id="rptSectionFilter" style="font-size:0.76rem;padding:4px 8px;">
+              <option value="all">All Sections</option>
+            </select>
+            <select id="rptStatusFilter" style="font-size:0.76rem;padding:4px 8px;">
+              <option value="all">All Status</option>
+              <option value="passed">Passed</option>
+              <option value="failed">Failed</option>
+              <option value="incomplete">Incomplete</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="mini-table" id="performanceTable">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>ID</th>
+                <th>Section</th>
+                <th>Subjects</th>
+                <th>Avg Grade</th>
+                <th>Attendance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="performanceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="page-view" id="page-settings">
+      <div class="page-header">
+        <div><h2>Settings</h2><p>System preferences and configuration.</p></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">🏫</span> System Info</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Institution</strong><small>Polytechnic University of Cabuyao</small></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Academic Year</strong><small>2025 – 2026</small></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Section</strong><small>2IT-A</small></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>System Version</strong><small>Scholaris LMS v2.0</small></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Storage</strong><small>Browser localStorage</small></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="card-title-icon">⚙️</span> Preferences</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Show enrollment count on sidebar</strong><small>Display live badge counters on nav</small></div>
+            <label class="toggle-switch"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Confirm before deleting</strong><small>Show a prompt before removing records</small></div>
+            <label class="toggle-switch"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Activity log</strong><small>Track recent changes on the dashboard</small></div>
+            <label class="toggle-switch"><input type="checkbox" checked><div class="toggle-track"></div></label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info"><strong>Passing grade threshold</strong><small>Minimum grade to pass (default: 75)</small></div>
+            <input type="number" id="passThreshold" value="75" min="50" max="100" style="width:70px;padding:5px 8px;font-size:0.82rem;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="page-footer">
+    <span>Scholaris LMS v2.0</span> — Polytechnic University of Cabuyao &nbsp;·&nbsp; A.Y. 2025–2026 &nbsp;·&nbsp; 2IT-A
+    <span style="color:var(--n400);font-weight:400;">All data stored locally in your browser.</span>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

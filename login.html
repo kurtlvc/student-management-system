@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholaris — Sign In</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:     #0f1923;
+      --ink-2:   #374151;
+      --ink-3:   #6b7280;
+      --ink-4:   #9ca3af;
+      --line:    #e5e7eb;
+      --bg:      #f9fafb;
+      --white:   #ffffff;
+      --blue:    #2563eb;
+      --blue-dk: #1d4ed8;
+      --blue-lt: #eff6ff;
+      --red:     #dc2626;
+      --red-lt:  #fef2f2;
+      --green:   #16a34a;
+      --green-lt:#f0fdf4;
+      --r:       8px;
+      --t:       0.18s ease;
+      --font:    'Sora', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      background: linear-gradient(175deg, #0d2b6e 0%, #1a3f9e 55%, #1e4db7 100%);
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 36px 32px;
+      animation: up 0.3s ease both;
+    }
+
+    @keyframes up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LOGO ── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: var(--ink);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: white; font-weight: 700;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+    .logo-text span {
+      font-weight: 300;
+      color: var(--ink-3);
+      font-size: 0.8rem;
+      display: block;
+      letter-spacing: 0;
+    }
+
+    /* ── HEADING ── */
+    .head { margin-bottom: 22px; }
+    .head h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+    .head p {
+      font-size: 0.82rem;
+      color: var(--ink-3);
+      margin-top: 3px;
+    }
+
+    /* ── ROLE PILLS ── */
+    .role-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .role-pill {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r);
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--ink-3);
+      cursor: pointer;
+      transition: all var(--t);
+      text-align: center;
+    }
+    .role-pill:hover { border-color: var(--blue); color: var(--blue); }
+    .role-pill.on {
+      border-color: var(--blue);
+      background: var(--blue-lt);
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    /* ── FORM ── */
+    .fields { display: flex; flex-direction: column; gap: 13px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .fg { display: flex; flex-direction: column; gap: 4px; }
+    .fg label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-2);
+      letter-spacing: 0.02em;
+    }
+    .fg input, .fg select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color var(--t), box-shadow var(--t);
+      outline: none;
+    }
+    .fg input:focus, .fg select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .fg input.err { border-color: var(--red); }
+    .fg input.ok  { border-color: #86efac; }
+    .hint {
+      font-size: 0.68rem;
+      min-height: 12px;
+      font-weight: 500;
+    }
+    .hint.err { color: var(--red); }
+    .hint.ok  { color: var(--green); }
+
+    /* ── ALERT ── */
+    .alert {
+      padding: 10px 12px;
+      border-radius: var(--r);
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: none;
+      margin-bottom: 14px;
+      animation: up 0.2s ease;
+    }
+    .alert.err  { background: var(--red-lt);   color: var(--red);   }
+    .alert.ok   { background: var(--green-lt);  color: var(--green); }
+
+    /* ── BUTTON ── */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: var(--r);
+      font-family: var(--font);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--t), transform var(--t);
+      letter-spacing: 0.01em;
+      margin-top: 4px;
+    }
+    .btn:hover { background: var(--ink-2); }
+    .btn:active { transform: scale(0.98); }
+
+    /* ── SWITCH LINK ── */
+    .switch {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--ink-3);
+    }
+    .switch a {
+      color: var(--blue);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .switch a:hover { text-decoration: underline; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 18px 0 16px;
+      font-size: 0.72rem; color: var(--ink-4);
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--line);
+    }
+
+    /* ── SHAKE ── */
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)}
+    }
+    .shake { animation: shake 0.3s ease; }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px; }
+      .row2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="mainCard">
+
+  <!-- LOGO -->
+  <div class="logo">
+    <div class="logo-mark">S.</div>
+    <div class="logo-text">
+      Scholaris
+      <span>Polytechnic University of Cabuyao</span>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: LOGIN ══ -->
+  <div id="v-login">
+    <div class="head">
+      <h2>Sign in</h2>
+      <p>Enter your credentials to continue.</p>
+    </div>
+
+    <div class="role-row" id="loginRoles">
+      <button class="role-pill on" data-role="admin">Admin</button>
+      <button class="role-pill" data-role="teacher">Teacher</button>
+      <button class="role-pill" data-role="student">Student</button>
+    </div>
+
+    <div class="alert" id="loginAlert"></div>
+
+    <div class="fields">
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="lEmail" placeholder="you@email.com" autocomplete="off">
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="lPass" placeholder="••••••••">
+      </div>
+      <button class="btn" onclick="auth.login()">Sign in</button>
+    </div>
+
+    <div class="divider">or register as</div>
+    <div class="role-row">
+      <button class="role-pill" onclick="auth.show('reg-student')">Student</button>
+      <button class="role-pill" onclick="auth.show('reg-teacher')">Teacher</button>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: STUDENT REGISTRATION ══ -->
+  <div id="v-reg-student" style="display:none;">
+    <div class="head">
+      <h2>Student registration</h2>
+      <p>Create your student account.</p>
+    </div>
+
+    <div class="alert" id="stuAlert"></div>
+
+    <div class="fields">
+      <div class="row2">
+        <div class="fg">
+          <label>First name</label>
+          <input type="text" id="sFn" placeholder="Juan" autocomplete="off">
+          <span class="hint" id="sFn-h"></span>
+        </div>
+        <div class="fg">
+          <label>Last name</label>
+          <input type="text" id="sLn" placeholder="Dela Cruz" autocomplete="off">
+          <span class="hint" id="sLn-h"></span>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="sEmail" placeholder="juan@email.com" autocomplete="off">
+        <span class="hint" id="sEmail-h"></span>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Student ID</label>
+          <input type="text" id="sId" placeholder="202400001" oninput="this.value=this.value.replace(/\D/g,'')">
+          <span class="hint" id="sId-h"></span>
+        </div>
+        <div class="fg">
+          <label>Section</label>
+          <select id="sSec">
+            <option value="">— Select —</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Password</label>
+          <input type="password" id="sPass" placeholder="Min. 6 chars">
+          <span class="hint" id="sPass-h"></span>
+        </div>
+        <div class="fg">
+          <label>Confirm password</label>
+          <input type="password" id="sPass2" placeholder="Repeat">
+          <span class="hint" id="sPass2-h"></span>
+        </div>
+      </div>
+      <button class="btn" onclick="auth.registerStudent()">Create account</button>
+    </div>
+
+    <div class="switch">Already have an account? <a onclick="auth.show('login')">Sign in</a></div>
+  </div>
+
+  <!-- ══ VIEW: TEACHER REGISTRATION ══ -->
+  <div id="v-reg-teacher" style="display:none;">
+    <div class="head">
+      <h2>Teacher registration</h2>
+      <p>Create your teacher account.</p>
+    </div>
+
+    <div class="alert" id="tchAlert"></div>
+
+    <div class="fields">
+      <div class="row2">
+        <div class="fg">
+          <label>First name</label>
+          <input type="text" id="tFn" placeholder="Maria" autocomplete="off">
+          <span class="hint" id="tFn-h"></span>
+        </div>
+        <div class="fg">
+          <label>Last name</label>
+          <input type="text" id="tLn" placeholder="Santos" autocomplete="off">
+          <span class="hint" id="tLn-h"></span>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="tEmail" placeholder="msantos@pnc.edu.ph" autocomplete="off">
+        <span class="hint" id="tEmail-h"></span>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Employee ID</label>
+          <input type="text" id="tId" placeholder="EMP-001" autocomplete="off">
+          <span class="hint" id="tId-h"></span>
+        </div>
+        <div class="fg">
+          <label>Department</label>
+          <input type="text" id="tDept" placeholder="CCS" autocomplete="off">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Password</label>
+          <input type="password" id="tPass" placeholder="Min. 6 chars">
+          <span class="hint" id="tPass-h"></span>
+        </div>
+        <div class="fg">
+          <label>Confirm password</label>
+          <input type="password" id="tPass2" placeholder="Repeat">
+          <span class="hint" id="tPass2-h"></span>
+        </div>
+      </div>
+      <button class="btn" onclick="auth.registerTeacher()">Create account</button>
+    </div>
+
+    <div class="switch">Already have an account? <a onclick="auth.show('login')">Sign in</a></div>
+  </div>
+
+</div>
+
+<script>
+const DB = {
+  accts:    () => JSON.parse(localStorage.getItem('pnc_accounts') || '[]'),
+  students: () => JSON.parse(localStorage.getItem('pnc_students') || '[]'),
+  teachers: () => JSON.parse(localStorage.getItem('pnc_teachers') || '[]'),
+  sections: () => JSON.parse(localStorage.getItem('pnc_sections') || '[]'),
+  saveAccts:(d) => localStorage.setItem('pnc_accounts', JSON.stringify(d)),
+  saveStus: (d) => localStorage.setItem('pnc_students', JSON.stringify(d)),
+  saveTchs: (d) => localStorage.setItem('pnc_teachers', JSON.stringify(d)),
+};
+
+// Seed default admin
+(function() {
+  const a = DB.accts();
+  if (!a.some(x => x.role === 'admin')) {
+    a.push({ email: 'admin@pnc.edu.ph', password: 'admin123', role: 'admin', name: 'Admin' });
+    DB.saveAccts(a);
+  }
+})();
+
+const h = (id, msg, type) => {
+  $(`#${id}-h`).text(msg).removeClass('ok err').addClass(type);
+  $(`#${id}`).removeClass('ok err').addClass(type === 'ok' ? 'ok' : 'err');
+};
+const ch = (id) => { $(`#${id}-h`).text('').removeClass('ok err'); $(`#${id}`).removeClass('ok err'); };
+const showAlert = (id, msg, type) => $(`#${id}`).text(msg).removeClass('ok err').addClass(type).show();
+const hideAlert = (id) => $(`#${id}`).hide();
+
+const auth = {
+  role: 'admin',
+
+  show(view) {
+    $('[id^="v-"]').hide();
+    $(`#v-${view}`).show();
+    if (view === 'reg-student') {
+      const sel = $('#sSec').empty().append('<option value="">— Select —</option>');
+      DB.sections().forEach(s => sel.append(`<option value="${s.name}">${s.name} (${s.year})</option>`));
+    }
+  },
+
+  init() {
+    $('#loginRoles .role-pill').on('click', function() {
+      $('#loginRoles .role-pill').removeClass('on');
+      $(this).addClass('on');
+      auth.role = $(this).data('role');
+    });
+
+    // Live validation — student
+    $('#sFn').on('input', function() { this.value.trim().length >= 2 ? h('sFn','✓','ok') : ch('sFn'); });
+    $('#sLn').on('input', function() { this.value.trim().length >= 2 ? h('sLn','✓','ok') : ch('sLn'); });
+    $('#sEmail').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('sEmail'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { h('sEmail','Invalid email.','err'); return; }
+      DB.accts().some(a => a.email.toLowerCase() === v.toLowerCase()) ? h('sEmail','Already registered.','err') : h('sEmail','✓','ok');
+    });
+    $('#sId').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('sId'); return; }
+      if (v.length < 4) { h('sId','Min 4 digits.','err'); return; }
+      DB.students().some(s => s.studentId === v) ? h('sId','ID exists.','err') : h('sId','✓','ok');
+    });
+    const livePass = (p, c) => {
+      $(`#${p}, #${c}`).on('input', () => {
+        const pv = $(`#${p}`).val(), cv = $(`#${c}`).val();
+        pv.length >= 6 ? h(p,'✓','ok') : (pv ? h(p,'Min 6 chars.','err') : ch(p));
+        if (cv) cv === pv ? h(c,'✓','ok') : h(c,'Mismatch.','err'); else ch(c);
+      });
+    };
+    livePass('sPass','sPass2');
+
+    // Live validation — teacher
+    $('#tFn').on('input', function() { this.value.trim().length >= 2 ? h('tFn','✓','ok') : ch('tFn'); });
+    $('#tLn').on('input', function() { this.value.trim().length >= 2 ? h('tLn','✓','ok') : ch('tLn'); });
+    $('#tEmail').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('tEmail'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { h('tEmail','Invalid email.','err'); return; }
+      DB.accts().some(a => a.email.toLowerCase() === v.toLowerCase()) ? h('tEmail','Already registered.','err') : h('tEmail','✓','ok');
+    });
+    $('#tId').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('tId'); return; }
+      DB.teachers().some(t => t.employeeId.toLowerCase() === v.toLowerCase()) ? h('tId','ID exists.','err') : h('tId','✓','ok');
+    });
+    livePass('tPass','tPass2');
+
+    $('#lEmail, #lPass').on('keydown', e => { if (e.key === 'Enter') auth.login(); });
+  },
+
+  login() {
+    const email = $('#lEmail').val().trim().toLowerCase();
+    const pass  = $('#lPass').val();
+    hideAlert('loginAlert');
+    if (!email || !pass) { showAlert('loginAlert','Please fill in all fields.','err'); return; }
+    const acct = DB.accts().find(a => a.email.toLowerCase() === email && a.password === pass && a.role === this.role);
+    if (!acct) {
+      showAlert('loginAlert','Incorrect email, password, or role.','err');
+      $('#lEmail,#lPass').addClass('shake');
+      setTimeout(() => $('#lEmail,#lPass').removeClass('shake'), 350);
+      return;
+    }
+    sessionStorage.setItem('pnc_session', JSON.stringify({ email: acct.email, role: acct.role, name: acct.name, refId: acct.refId }));
+    window.location.href = 'index.html';
+  },
+
+  registerStudent() {
+    hideAlert('stuAlert');
+    const fn = $('#sFn').val().trim(), ln = $('#sLn').val().trim();
+    const email = $('#sEmail').val().trim(), id = $('#sId').val().trim();
+    const sec = $('#sSec').val(), pass = $('#sPass').val(), pass2 = $('#sPass2').val();
+    let ok = true;
+
+    if (fn.length < 2) { h('sFn','Required.','err'); ok=false; }
+    if (ln.length < 2) { h('sLn','Required.','err'); ok=false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { h('sEmail','Invalid email.','err'); ok=false; }
+    else if (DB.accts().some(a => a.email.toLowerCase()===email.toLowerCase())) { h('sEmail','Already registered.','err'); ok=false; }
+    if (id.length < 4) { h('sId','Min 4 digits.','err'); ok=false; }
+    else if (DB.students().some(s => s.studentId===id)) { h('sId','ID exists.','err'); ok=false; }
+    if (pass.length < 6) { h('sPass','Min 6 chars.','err'); ok=false; }
+    if (pass !== pass2)  { h('sPass2','Mismatch.','err'); ok=false; }
+    if (!ok) { showAlert('stuAlert','Please fix the errors above.','err'); return; }
+
+    const name = `${fn} ${ln}`;
+    const stus = DB.students(); stus.push({ name, email, studentId: id, section: sec, enrolledCourses: [] }); DB.saveStus(stus);
+    const a = DB.accts(); a.push({ email, password: pass, role: 'student', name, refId: id }); DB.saveAccts(a);
+
+    showAlert('stuAlert','Account created! Redirecting to login…','ok');
+    setTimeout(() => {
+      this.show('login'); hideAlert('stuAlert');
+      $('#lEmail').val(email);
+      $('#loginRoles .role-pill').removeClass('on'); $('[data-role="student"]').addClass('on'); this.role='student';
+    }, 1600);
+  },
+
+  registerTeacher() {
+    hideAlert('tchAlert');
+    const fn = $('#tFn').val().trim(), ln = $('#tLn').val().trim();
+    const email = $('#tEmail').val().trim(), empId = $('#tId').val().trim();
+    const dept = $('#tDept').val().trim(), pass = $('#tPass').val(), pass2 = $('#tPass2').val();
+    let ok = true;
+
+    if (fn.length < 2) { h('tFn','Required.','err'); ok=false; }
+    if (ln.length < 2) { h('tLn','Required.','err'); ok=false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { h('tEmail','Invalid email.','err'); ok=false; }
+    else if (DB.accts().some(a => a.email.toLowerCase()===email.toLowerCase())) { h('tEmail','Already registered.','err'); ok=false; }
+    if (!empId) { h('tId','Required.','err'); ok=false; }
+    else if (DB.teachers().some(t => t.employeeId.toLowerCase()===empId.toLowerCase())) { h('tId','ID exists.','err'); ok=false; }
+    if (pass.length < 6) { h('tPass','Min 6 chars.','err'); ok=false; }
+    if (pass !== pass2)  { h('tPass2','Mismatch.','err'); ok=false; }
+    if (!ok) { showAlert('tchAlert','Please fix the errors above.','err'); return; }
+
+    const name = `${fn} ${ln}`;
+    const tchs = DB.teachers(); tchs.push({ name, email, employeeId: empId, department: dept }); DB.saveTchs(tchs);
+    const a = DB.accts(); a.push({ email, password: pass, role: 'teacher', name, refId: empId }); DB.saveAccts(a);
+
+    showAlert('tchAlert','Account created! Redirecting to login…','ok');
+    setTimeout(() => {
+      this.show('login'); hideAlert('tchAlert');
+      $('#lEmail').val(email);
+      $('#loginRoles .role-pill').removeClass('on'); $('[data-role="teacher"]').addClass('on'); this.role='teacher';
+    }, 1600);
+  }
+};
+
+$(document).ready(() => auth.init());
+</script>
+</body>
+</html>

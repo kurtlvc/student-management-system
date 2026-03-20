@@ -1,13 +1,20 @@
+// Handles saving and loading data from localStorage
 class StorageManager {
     constructor(key) { this.key = key; }
+
+    // Loads and parses stored data, returns empty array if nothing found
     load() {
         const data = localStorage.getItem(this.key);
         return data ? JSON.parse(data) : [];
     }
+
+    // Serializes and saves data to localStorage
     save(data) { localStorage.setItem(this.key, JSON.stringify(data)); }
 }
 
+// Handles all form field validation rules and UI feedback
 class Validator {
+    // Validation rules for each form field
     static rules = {
         stuName: [
             { test: v => v.trim().length > 0,  msg: 'Full name is required.' },
@@ -36,6 +43,7 @@ class Validator {
         ]
     };
 
+    // Runs all rules for a field and shows error or success message
     static validateField(fieldId, value, extraCheck) {
         const rules = this.rules[fieldId] || [];
         const msgEl = $(`#${fieldId}-msg`);
@@ -51,6 +59,7 @@ class Validator {
         return true;
     }
 
+    // Validates all student form fields, including duplicate checks
     static validateStudent(name, email, id, students) {
         const dupEmail = v => students.some(s => s.email.toLowerCase() === v.toLowerCase()) ? 'Email already registered.' : null;
         const dupId    = v => students.some(s => s.studentId.toLowerCase() === v.toLowerCase()) ? 'Student ID already exists.' : null;
@@ -59,6 +68,7 @@ class Validator {
             this.validateField('stuEmail', email, dupEmail),
             this.validateField('stuId', id, dupId)
         ];
+        // Shake animation on invalid fields
         ok.forEach((valid, i) => {
             if (!valid) {
                 const ids = ['stuName', 'stuEmail', 'stuId'];
@@ -69,6 +79,7 @@ class Validator {
         return ok.every(Boolean);
     }
 
+    // Validates all teacher form fields, including duplicate checks
     static validateTeacher(name, email, id, teachers) {
         const dupEmail = v => teachers.some(t => t.email.toLowerCase() === v.toLowerCase()) ? 'Email already registered.' : null;
         const dupId    = v => teachers.some(t => t.employeeId.toLowerCase() === v.toLowerCase()) ? 'Employee ID already exists.' : null;
@@ -77,6 +88,7 @@ class Validator {
             this.validateField('tchEmail', email, dupEmail),
             this.validateField('tchId', id, dupId)
         ];
+        // Shake animation on invalid fields
         ok.forEach((valid, i) => {
             if (!valid) {
                 const ids = ['tchName', 'tchEmail', 'tchId'];
@@ -87,38 +99,50 @@ class Validator {
         return ok.every(Boolean);
     }
 
+    // Marks a field as invalid and shows an error message
     static setInvalid(input, msgEl, msg) {
         input.removeClass('field-valid').addClass('field-invalid');
         msgEl.text(msg).removeClass('field-msg-valid').addClass('field-msg-error').show();
     }
+
+    // Marks a field as valid and shows a success message
     static setValid(input, msgEl) {
         input.removeClass('field-invalid').addClass('field-valid');
         msgEl.text('✓ Looks good').removeClass('field-msg-error').addClass('field-msg-valid').show();
     }
+
+    // Resets a single field's validation state
     static clearField(fieldId) {
         $(`#${fieldId}`).removeClass('field-valid field-invalid');
         $(`#${fieldId}-msg`).hide().text('').removeClass('field-msg-error field-msg-valid');
     }
+
+    // Clears validation state for a list of fields
     static clearAll(fields) {
         fields.forEach(id => this.clearField(id));
     }
 }
 
+// Represents a single student record
 class Student {
     constructor(name, email, id, section = '', courses = []) {
         this.name = name;
         this.email = email;
         this.studentId = id;
         this.section = section;
-        this.enrolledCourses = courses;
+        this.enrolledCourses = courses; // Array of course codes the student is enrolled in
     }
 }
 
+// Manages student records: adding, editing, deleting, and enrolling in courses
 class StudentManager {
     constructor() {
         this.repo = new StorageManager("pnc_students");
+        // Load saved students and rebuild Student instances from plain objects
         this.students = this.repo.load().map(s => new Student(s.name, s.email, s.studentId, s.section || '', s.enrolledCourses));
     }
+
+    // Reads form inputs, validates, then adds a new student
     add() {
         const n = $('#stuName').val().trim();
         const e = $('#stuEmail').val().trim();
@@ -133,6 +157,8 @@ class StudentManager {
         Validator.clearAll(['stuName', 'stuEmail', 'stuId']);
         app.logActivity(`Registered student <strong>${n}</strong>`, 'green');
     }
+
+    // Enrolls a student in a course by index if not already enrolled
     enroll(idx, code) {
         if (!code) return;
         if (!this.students[idx].enrolledCourses.includes(code)) {
@@ -142,6 +168,8 @@ class StudentManager {
             app.logActivity(`Enrolled <strong>${this.students[idx].name}</strong> in <strong>${code}</strong>`, 'blue');
         }
     }
+
+    // Opens prompts to edit a student's name, email, and enrolled courses
     edit(idx) {
         const s = this.students[idx];
         const n = prompt("Edit Name:", s.name);
@@ -157,6 +185,8 @@ class StudentManager {
             app.logActivity(`Updated student <strong>${n}</strong>`, 'gold');
         }
     }
+
+    // Confirms then permanently removes a student record
     delete(idx) {
         if (confirm("Delete this student? This action cannot be undone.")) {
             const name = this.students[idx].name;
@@ -168,6 +198,7 @@ class StudentManager {
     }
 }
 
+// Represents a single teacher record
 class Teacher {
     constructor(name, email, id, dept = '') {
         this.name = name;
@@ -177,11 +208,15 @@ class Teacher {
     }
 }
 
+// Manages teacher records: adding and deleting
 class TeacherManager {
     constructor() {
         this.repo = new StorageManager("pnc_teachers");
+        // Load saved teachers and rebuild Teacher instances from plain objects
         this.teachers = this.repo.load().map(t => new Teacher(t.name, t.email, t.employeeId, t.department));
     }
+
+    // Reads form inputs, validates, then adds a new teacher
     add() {
         const n = $('#tchName').val().trim();
         const e = $('#tchEmail').val().trim();
@@ -195,6 +230,8 @@ class TeacherManager {
         Validator.clearAll(['tchName', 'tchEmail', 'tchId']);
         app.logActivity(`Registered teacher <strong>${n}</strong>`, 'blue');
     }
+
+    // Confirms then permanently removes a teacher record
     delete(idx) {
         if (confirm("Delete this teacher record?")) {
             const name = this.teachers[idx].name;
@@ -206,21 +243,24 @@ class TeacherManager {
     }
 }
 
+// Represents a single class section
 class Section {
     constructor(name, year, teacherId) {
         this.name = name;
         this.year = year;
-        this.teacherId = teacherId;
+        this.teacherId = teacherId; // Employee ID of the assigned teacher
     }
 }
 
+// Manages class sections: creating, deleting, and assigning teachers
 class SectionManager {
     constructor() {
         this.repo = new StorageManager("pnc_sections");
         this.sections = this.repo.load().map(s => new Section(s.name, s.year, s.teacherId));
-        this.seedDefaults();
+        this.seedDefaults(); // Pre-populate default sections on first load
     }
 
+    // Creates default sections for all programs, year levels, and blocks if not yet seeded
     seedDefaults() {
         const SEED_VERSION = 'v3';
         const seeded = localStorage.getItem('pnc_sections_seeded');
@@ -243,6 +283,8 @@ class SectionManager {
         this.repo.save(this.sections);
         localStorage.setItem('pnc_sections_seeded', SEED_VERSION);
     }
+
+    // Reads form inputs and adds a new section if the name is unique
     add() {
         const n = $('#secName').val().trim();
         const y = $('#secYear').val();
@@ -259,6 +301,8 @@ class SectionManager {
         $('#secYear, #secTeacher').val('');
         app.logActivity(`Created section <strong>${n}</strong>`, 'purple');
     }
+
+    // Confirms then permanently removes a section
     delete(idx) {
         if (confirm("Delete this section?")) {
             const name = this.sections[idx].name;
@@ -268,6 +312,8 @@ class SectionManager {
             app.logActivity(`Deleted section <strong>${name}</strong>`, 'red');
         }
     }
+
+    // Assigns a teacher to a section by their employee ID
     assignTeacher(idx, teacherId) {
         this.sections[idx].teacherId = teacherId;
         this.repo.save(this.sections);
@@ -277,13 +323,17 @@ class SectionManager {
     }
 }
 
+// Represents a single course/subject
 class Course { constructor(name, code, units = 3) { this.name = name; this.code = code; this.units = units; } }
 
+// Manages courses/subjects: adding, deleting, and removing students from them
 class CourseManager {
     constructor() {
         this.repo = new StorageManager("pnc_courses");
         this.courses = this.repo.load().map(c => new Course(c.name, c.code, c.units || 3));
     }
+
+    // Reads form inputs and adds a new course if the code is unique
     add() {
         const n = $('#crsName').val().trim();
         const c = $('#crsCode').val().trim().toUpperCase();
@@ -296,6 +346,8 @@ class CourseManager {
         $('#crsName, #crsCode').val('');
         app.logActivity(`Created subject <strong>${c}: ${n}</strong>`, 'blue');
     }
+
+    // Deletes a course and unenrolls all students from it
     delete(idx) {
         const c = this.courses[idx];
         if (confirm(`Delete subject "${c.code}: ${c.name}"? This will also unenroll all students from it.`)) {
@@ -309,6 +361,8 @@ class CourseManager {
             app.logActivity(`Deleted subject <strong>${c.code}: ${c.name}</strong>`, 'red');
         }
     }
+
+    // Prompts the admin to remove a specific student from a course
     removeStudent(courseIdx) {
         const code = this.courses[courseIdx].code;
         const enrolled = app.studentManager.students.filter(s => s.enrolledCourses.includes(code));
@@ -324,16 +378,19 @@ class CourseManager {
     }
 }
 
+// Manages grade records and attendance tracking per student per course
 class GradesManager {
     constructor() {
         this.repo = new StorageManager("pnc_grades");
-        this.records = this.repo.load();
+        this.records = this.repo.load(); // Each record holds grades and attendance for one student-course pair
     }
 
+    // Finds and returns a grade record for a specific student and course
     getRecord(studentId, courseCode) {
         return this.records.find(r => r.studentId === studentId && r.courseCode === courseCode) || null;
     }
 
+    // Loads grade and attendance data into the form for the selected student and course
     load() {
         const stuId   = $('#gradeStudentSelect').val();
         const crsCode = $('#gradeSubjectSelect').val();
@@ -363,9 +420,11 @@ class GradesManager {
         $('#gradeRecordArea').show();
         $('#gradeEmptyState').hide();
 
+        // Recompute the grade average whenever any grade input changes
         $('#gradePrelim, #gradeMidterm, #gradeFinals').off('input').on('input', () => this.updateComputed());
     }
 
+    // Computes and displays the average of prelim, midterm, and finals grades
     updateComputed() {
         const p = parseFloat($('#gradePrelim').val());
         const m = parseFloat($('#gradeMidterm').val());
@@ -375,12 +434,14 @@ class GradesManager {
             const avg = ((p + m + f) / 3).toFixed(2);
             const threshold = parseFloat($('#passThreshold').val()) || 75;
             const passed = parseFloat(avg) >= threshold;
+            // Green if passing, red if failing
             box.text(avg).css('color', passed ? 'var(--green-mid)' : 'var(--danger)');
         } else {
             box.text('—').css('color', 'var(--n500)');
         }
     }
 
+    // Saves or updates the grade record for the currently loaded student and course
     save() {
         const stuId   = $('#gradeStudentSelect').val();
         const crsCode = $('#gradeSubjectSelect').val();
@@ -393,8 +454,10 @@ class GradesManager {
 
         let rec = this.getRecord(stuId, crsCode);
         if (rec) {
+            // Update existing record
             rec.prelim = p; rec.midterm = m; rec.finals = f;
         } else {
+            // Create a new record if none exists
             rec = { studentId: stuId, courseCode: crsCode, prelim: p, midterm: m, finals: f, attendance: [] };
             this.records.push(rec);
         }
@@ -405,6 +468,7 @@ class GradesManager {
         alert("Grade saved successfully!");
     }
 
+    // Adds a new attendance entry for the selected date, preventing duplicates
     addAttendance() {
         const stuId   = $('#gradeStudentSelect').val();
         const crsCode = $('#gradeSubjectSelect').val();
@@ -416,6 +480,7 @@ class GradesManager {
 
         let rec = this.getRecord(stuId, crsCode);
         if (!rec) {
+            // Create a grade record shell if it doesn't exist yet
             rec = { studentId: stuId, courseCode: crsCode, prelim: null, midterm: null, finals: null, attendance: [] };
             this.records.push(rec);
         }
@@ -424,13 +489,14 @@ class GradesManager {
             rec.attendance = rec.attendance.filter(a => a.date !== date);
         }
         rec.attendance.push({ date, status, remarks });
-        rec.attendance.sort((a, b) => new Date(b.date) - new Date(a.date));
+        rec.attendance.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort newest first
         this.repo.save(this.records);
         this.renderAttendance(rec);
         $('#attendRemarks').val('');
         app.logActivity(`Logged attendance for <strong>${stuId}</strong> — ${date}: ${status}`, 'blue');
     }
 
+    // Renders the attendance list and summary stats for a given grade record
     renderAttendance(rec) {
         const list = $('#attendanceList').empty();
         if (!rec || !rec.attendance || !rec.attendance.length) {
@@ -442,7 +508,7 @@ class GradesManager {
         const present = rec.attendance.filter(a => a.status === 'present').length;
         const late    = rec.attendance.filter(a => a.status === 'late').length;
         const absent  = rec.attendance.filter(a => a.status === 'absent').length;
-        const pct     = Math.round(((present + late) / total) * 100);
+        const pct     = Math.round(((present + late) / total) * 100); // Attendance percentage
         $('#attendSummary').html(`<span class="badge badge-green">${pct}% attendance</span> &nbsp; ${present}P · ${late}L · ${absent}A`);
 
         rec.attendance.forEach((a, i) => {
@@ -461,6 +527,7 @@ class GradesManager {
         });
     }
 
+    // Removes a single attendance entry by index and re-renders the list
     deleteAttendance(stuId, crsCode, idx) {
         const rec = this.getRecord(stuId, crsCode);
         if (rec) {
@@ -470,6 +537,7 @@ class GradesManager {
         }
     }
 
+    // Returns the overall average grade across all subjects for a student
     getStudentAvgGrade(studentId) {
         const recs = this.records.filter(r => r.studentId === studentId && r.prelim !== null);
         if (!recs.length) return null;
@@ -477,6 +545,7 @@ class GradesManager {
         return avg.toFixed(2);
     }
 
+    // Returns the overall attendance percentage across all subjects for a student
     getStudentAttendancePct(studentId) {
         const recs = this.records.filter(r => r.studentId === studentId);
         const allAttend = recs.flatMap(r => r.attendance || []);
@@ -486,6 +555,7 @@ class GradesManager {
     }
 }
 
+// Main application controller — initializes all managers and drives the UI
 class App {
     constructor() {
         this.studentManager = new StudentManager();
@@ -493,16 +563,18 @@ class App {
         this.sectionManager = new SectionManager();
         this.courseManager  = new CourseManager();
         this.gradesManager  = new GradesManager();
-        this.activityLog    = [];
+        this.activityLog    = []; // Tracks recent user actions for the dashboard feed
         this.init();
     }
 
+    // Redirects to login if no active session is found
     checkSession() {
         const session = JSON.parse(sessionStorage.getItem('pnc_session') || 'null');
         if (!session) { window.location.href = 'login.html'; return null; }
         return session;
     }
 
+    // Updates the sidebar with the logged-in user's name, role, and avatar
     renderSessionUI(session) {
         const roleLabels = { admin: 'Admin', teacher: 'Teacher', student: 'Student' };
         const roleEmoji  = { admin: '🛡️', teacher: '👨‍🏫', student: '🎓' };
@@ -515,9 +587,11 @@ class App {
         $('#sessionName').text(name);
     }
 
+    // Restricts navigation and data visibility based on the user's role
     applyRoleAccess(session) {
         const role = session.role;
 
+        // Pages each role is allowed to access
         const access = {
             admin:   ['dashboard','students','teachers','sections','courses','grades','reports','settings'],
             teacher: ['dashboard','students','sections','courses','grades','reports'],
@@ -525,11 +599,13 @@ class App {
         };
         const allowed = access[role] || ['dashboard'];
 
+        // Hide nav links the current role cannot access
         $('.nav-link[data-page]').each(function() {
             const page = $(this).data('page');
             $(this).toggle(allowed.includes(page));
         });
 
+        // Wrap navigateTo to block unauthorized page access
         const self = this;
         const originalNavigate = this.navigateTo.bind(this);
         this.navigateTo = function(page) {
@@ -542,11 +618,13 @@ class App {
 
         $('body').addClass(`role-${role}`);
 
+        // Store the student's own ID to filter their data view
         if (role === 'student') {
             this._studentFilter = session.refId;
         }
     }
 
+    // Clears the session and redirects to the login page
     logout() {
         if (confirm('Are you sure you want to sign out?')) {
             sessionStorage.removeItem('pnc_session');
@@ -554,16 +632,19 @@ class App {
         }
     }
 
+    // Sets up event listeners, renders the UI, and navigates to the dashboard
     init() {
         const session = this.checkSession();
         if (!session) return;
         this.renderSessionUI(session);
         this.applyRoleAccess(session);
 
+        // Navigation click handler
         $('.nav-link[data-page]').on('click', (e) => {
             this.navigateTo($(e.currentTarget).data('page'));
         });
 
+        // Live search and filter listeners
         $('#stuSearch, #stuField').on('input change', () => this.renderStudents());
         $('#secSearch, #secYearFilter, #secProgFilter').on('input change', () => this.renderSections());
         $('#crsSearch').on('input', () => this.renderCourses());
@@ -572,6 +653,7 @@ class App {
         $('#tchSearch').on('input', () => this.renderTeachers());
         $('#rptSectionFilter, #rptStatusFilter').on('change', () => this.renderPerformanceTable());
 
+        // Real-time validation for student fields
         $('#stuName').on('input', () => {
             Validator.validateField('stuName', $('#stuName').val(), null);
         });
@@ -586,6 +668,7 @@ class App {
             );
         });
 
+        // Real-time validation for teacher fields
         $('#tchName').on('input', () => Validator.validateField('tchName', $('#tchName').val(), null));
         $('#tchEmail').on('input', () => {
             Validator.validateField('tchEmail', $('#tchEmail').val(),
@@ -598,6 +681,7 @@ class App {
             );
         });
 
+        // Display today's date in the top navigation bar
         const now = new Date();
         $('#topnavDate').text(now.toLocaleDateString('en-PH', {
             weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
@@ -607,6 +691,7 @@ class App {
         this.navigateTo('dashboard');
     }
 
+    // Switches the active page view and updates the breadcrumb
     navigateTo(page) {
         $('.nav-link').removeClass('active');
         $(`.nav-link[data-page="${page}"]`).addClass('active');
@@ -625,6 +710,7 @@ class App {
         if (page === 'grades')    this.populateGradeSelects();
     }
 
+    // Adds an entry to the activity feed and keeps only the 10 most recent
     logActivity(html, type = 'green') {
         const timeLabels = ['Just now', '1m ago', '3m ago', '7m ago', '12m ago', '20m ago'];
         this.activityLog.unshift({ html, type, time: 'Just now' });
@@ -633,6 +719,7 @@ class App {
         this.renderActivity();
     }
 
+    // Populates the grade form dropdowns filtered by the user's role
     populateGradeSelects() {
         const session = this.checkSession();
         const role    = session ? session.role : 'student';
@@ -640,6 +727,7 @@ class App {
         const stuSel = $('#gradeStudentSelect').empty().append('<option value="">— Select Student —</option>');
 
         let students = this.studentManager.students;
+        // Students only see themselves; teachers only see students in their sections
         if (role === 'student') {
             students = students.filter(s => s.studentId === session.refId);
         } else if (role === 'teacher') {
@@ -660,19 +748,21 @@ class App {
         $('#gradeEmptyState').show();
     }
 
+    // Renders summary stats and the recent students table on the dashboard
     renderDashboard() {
         const students = this.studentManager.students;
         const teachers = this.teacherManager.teachers;
         const sections = this.sectionManager.sections;
         const courses  = this.courseManager.courses;
 
+        // Update count badges
         $('#dashStudents').text(students.length);
         $('#dashTeachers').text(teachers.length);
         $('#dashSections').text(sections.length);
         $('#dashCourses').text(courses.length);
 
         const tbody = $('#recentStudentsBody').empty();
-        const recent = [...students].slice(-5).reverse();
+        const recent = [...students].slice(-5).reverse(); // Show the 5 most recently added students
         if (!recent.length) {
             tbody.append(`<tr><td colspan="4" style="text-align:center;color:var(--n400);padding:22px 0;">No students yet.</td></tr>`);
         } else {
@@ -703,6 +793,7 @@ class App {
         this.renderActivity();
     }
 
+    // Renders the recent activity feed on the dashboard
     renderActivity() {
         const list = $('#activityList').empty();
         if (!this.activityLog.length) {
@@ -719,6 +810,7 @@ class App {
         });
     }
 
+    // Renders the filtered and searchable list of students
     renderStudents() {
         const query     = $('#stuSearch').val().toLowerCase();
         const field     = $('#stuField').val();
@@ -727,6 +819,7 @@ class App {
         const role      = session ? session.role : 'student';
 
         let students = this.studentManager.students;
+        // Filter visible students based on role
         if (role === 'student') {
             students = students.filter(s => s.studentId === session.refId);
         } else if (role === 'teacher') {
@@ -759,6 +852,7 @@ class App {
         const isAdmin   = role === 'admin';
         const isTeacher = role === 'teacher';
 
+        // Builds a student card with enroll/edit/delete controls based on role
         const renderCard = (s) => {
             const realIdx    = this.studentManager.students.indexOf(s);
             const options    = this.courseManager.courses.map(c => `<option value="${c.code}">${c.name} (${c.code})</option>`).join('');
@@ -786,6 +880,7 @@ class App {
             </div>`;
         };
 
+        // Teachers see students grouped by section
         if (isTeacher) {
             const grouped = {};
             filtered.forEach(s => {
@@ -816,12 +911,14 @@ class App {
         }
     }
 
+    // Renders the filtered list of teachers and updates the section teacher dropdown
     renderTeachers() {
         const query = ($('#tchSearch').val() || '').toLowerCase();
         const container = $('#teacherList').empty();
         $('#sidebarTeacherBadge').text(this.teacherManager.teachers.length);
         $('#teacherCount').text(`${this.teacherManager.teachers.length} teacher(s)`);
 
+        // Rebuild the teacher dropdown used in the sections form
         const tchSel = $('#secTeacher').empty().append('<option value="">— Select Teacher —</option>');
         this.teacherManager.teachers.forEach(t => tchSel.append(`<option value="${t.employeeId}">${t.name} (${t.employeeId})</option>`));
 
@@ -854,6 +951,7 @@ class App {
         });
     }
 
+    // Renders the filtered and searchable list of sections
     renderSections() {
         const query      = ($('#secSearch').val() || '').toLowerCase();
         const yearFilter = $('#secYearFilter').val() || 'all';
@@ -866,6 +964,7 @@ class App {
         $('#sidebarSectionBadge').text(this.sectionManager.sections.length);
 
         let sections = this.sectionManager.sections;
+        // Teachers only see their own assigned sections
         if (role === 'teacher') {
             sections = sections.filter(s => s.teacherId === session.refId);
         }
@@ -891,6 +990,7 @@ class App {
             const teacher  = this.teacherManager.teachers.find(t => t.employeeId === s.teacherId);
             const stuCount = this.studentManager.students.filter(st => st.section === s.name).length;
 
+            // Admins get a teacher assignment dropdown; others just see the teacher name
             const teacherCell = isAdmin
                 ? `<div style="display:flex;align-items:center;gap:6px;flex:1;min-width:200px;">
                        <span style="font-size:0.76rem;color:var(--n600);white-space:nowrap;">Assign Teacher:</span>
@@ -921,6 +1021,7 @@ class App {
         });
     }
 
+    // Renders the filtered list of courses/subjects
     renderCourses() {
         const query     = ($('#crsSearch').val() || '').toLowerCase();
         const container = $('#courseList').empty();
@@ -960,6 +1061,7 @@ class App {
         });
     }
 
+    // Renders the full reports page with enrollment stats, grade summaries, and chart bars
     renderReports() {
         const students = this.studentManager.students;
         const courses  = this.courseManager.courses;
@@ -974,6 +1076,7 @@ class App {
         const allAvgs = students.map(s => this.gradesManager.getStudentAvgGrade(s.studentId)).filter(Boolean).map(Number);
         const classAvg = allAvgs.length ? (allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length).toFixed(2) : '—';
 
+        // Update report stat cards
         $('#rptTotalStudents').text(total);
         $('#rptTotalTeachers').text(teachers.length);
         $('#rptTotalCourses').text(courses.length);
@@ -984,9 +1087,11 @@ class App {
         $('#rptWithGrades').text(gradesRecorded);
         $('#rptClassAvg').text(classAvg);
 
+        // Populate the section filter dropdown
         const secFilter = $('#rptSectionFilter').empty().append('<option value="all">All Sections</option>');
         this.sectionManager.sections.forEach(s => secFilter.append(`<option value="${s.name}">${s.name}</option>`));
 
+        // Draw enrollment bar chart for each course
         const barsContainer = $('#courseEnrollBars').empty();
         if (!courses.length) {
             barsContainer.append(`<div class="empty-state"><div class="empty-icon">📊</div><p>No subjects to report yet.</p></div>`);
@@ -1004,6 +1109,7 @@ class App {
                         <span class="r-val">${cnt}</span>
                     </div>`);
             });
+            // Animate bars after they're inserted into the DOM
             setTimeout(() => {
                 barsContainer.find('.progress-bar').each(function(i) { $(this).css('width', targets[i] + '%'); });
             }, 80);
@@ -1012,6 +1118,7 @@ class App {
         this.renderPerformanceTable();
     }
 
+    // Renders the student performance table with grade averages, attendance, and pass/fail status
     renderPerformanceTable() {
         const students  = this.studentManager.students;
         const secFilter = $('#rptSectionFilter').val() || 'all';
@@ -1022,6 +1129,7 @@ class App {
         let filtered = students;
         if (secFilter !== 'all') filtered = filtered.filter(s => s.section === secFilter);
 
+        // Compute per-term averages and overall status for each student
         filtered = filtered.map(s => {
             const records = s.enrolledCourses.map(code => this.gradesManager.getRecord(s.studentId, code)).filter(Boolean);
             const prelims  = records.map(r => r.prelim).filter(v => v !== null && v !== undefined && v !== '');
@@ -1068,10 +1176,12 @@ class App {
         });
     }
 
+    // Triggers the browser's print dialog for the current report view
     printReport() {
         window.print();
     }
 
+    // Re-renders all page sections and updates sidebar badges
     renderAll() {
         this.renderStudents();
         this.renderTeachers();
@@ -1083,6 +1193,7 @@ class App {
     }
 }
 
+// Initialize the app once the DOM is fully loaded
 $(document).ready(() => {
     window.app = new App();
 });

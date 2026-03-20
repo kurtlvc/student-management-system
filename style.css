@@ -300,7 +300,7 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius
 }
 .card-title {
   font-family: var(--font-display);
-  font-size: 1.02rem; color: var(--n900);
+  font-size: 1.25rem; color: var(--n900);
   display: flex; align-items: center; gap: 8px;
 }
 .card-title-icon {
@@ -317,7 +317,7 @@ nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius
   color: var(--n700); margin-bottom: 5px;
   text-transform: uppercase; letter-spacing: 0.05em;
 }
-input[type="text"], input[type="email"], input[type="number"], input[type="date"], select {
+input[type="text"], input[type="email"], input[type="number"], input[type="date"], input[type="password"], select {
   width: 100%; padding: 9px 12px;
   border: 1.5px solid var(--n300); border-radius: var(--radius-sm);
   font-family: var(--font-body); font-size: 0.88rem;
@@ -582,4 +582,148 @@ input.field-valid {
   .main-area { margin-left: 0; }
   .page-content { padding: 16px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── INFO BOX ── */
+.info-box {
+  padding: 10px 12px;
+  background: var(--green-faint);
+  border-left: 3px solid var(--green-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  color: var(--n800);
+}
+
+/* ── PRINT STYLES ── */
+@media print {
+  .sidebar, .topnav, .page-footer, .btn-logout,
+  .btn-primary, .btn-edit, .btn-delete, .btn-ghost,
+  #page-dashboard, #page-students, #page-teachers,
+  #page-sections, #page-courses, #page-grades,
+  #page-settings, .page-header button,
+  .search-row, .stats-grid { display: none !important; }
+
+  body, .main-area { margin: 0; padding: 0; background: white; }
+  .page-content { padding: 0; overflow: visible; }
+  #page-reports { display: block !important; }
+  .page-view { display: block !important; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+  .mini-table th, .mini-table td { font-size: 11px; padding: 5px 7px; }
+  .two-col { display: block; }
+  .two-col > * { margin-bottom: 16px; }
+}
+
+/* ── ROLE-BASED ACCESS CONTROL ── */
+
+/* ── TEACHER: shared features with admin ───────────────────────
+   Teachers CAN: view students (their sections), view sections they handle,
+                 save grades, log attendance, view reports, view subjects
+   Teachers CANNOT: register/edit/delete students or teachers,
+                    manage all sections, change settings             */
+
+body.role-teacher #page-students .card:first-child { display: none !important; }
+body.role-teacher .item-actions .btn-edit,
+body.role-teacher .item-actions .btn-delete         { display: none !important; }
+/* Teachers CAN save grades and log attendance — nothing hidden on grades page */
+
+/* ── STUDENT: read-only access ─────────────────────────────────
+   Students CAN: view their own profile, view their own grades/attendance
+   Students CANNOT: edit anything, register, enroll, save grades        */
+
+body.role-student #page-students .card:first-child  { display: none !important; }
+body.role-student .item-actions                     { display: none !important; }
+/* Grades page: hide all save/log buttons — students view only */
+body.role-student #page-grades .btn-primary,
+body.role-student #page-grades .card:last-child     { display: none !important; }
+
+/* ── SECTION GROUP CARD (teacher student view) ── */
+.section-group-card {
+  background: white;
+  border: 1px solid var(--n200);
+  border-radius: var(--radius-lg);
+  margin-bottom: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  animation: fadeSlide 0.28s var(--ease) both;
+}
+.section-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  background: linear-gradient(135deg, #0d2b6e 0%, #1a3f9e 100%);
+}
+.section-group-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: white;
+  font-weight: 600;
+}
+.section-group-body {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.section-group-body .data-item {
+  border-radius: var(--radius-sm);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--n300);
+  font-size: 1.1rem;
+  color: var(--n700);
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: all var(--t);
+}
+.menu-toggle:hover { background: var(--green-faint); color: var(--green); border-color: var(--green-light); }
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+  backdrop-filter: blur(1px);
+}
+.sidebar-overlay.active { display: block; }
+
+@media (max-width: 1024px) {
+  .topnav { padding: 0 20px; }
+  .topnav-date { font-size: 0.72rem; }
+}
+
+@media (max-width: 768px) {
+  .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .topnav { padding: 0 14px; gap: 10px; }
+  .topnav-date { display: none; }
+  .session-chip { display: none; }
+  .btn-logout { padding: 5px 10px; font-size: 0.72rem; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .page-header h2 { font-size: 1.35rem; }
+  #page-reports .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .search-row { flex-wrap: wrap; }
+  .search-row select { width: 100%; flex-shrink: unset; }
+  .card-title { font-size: 1.05rem; }
+  .page-footer { flex-direction: column; gap: 4px; text-align: center; padding: 10px 16px; }
+  .page-footer span { display: inline; }
+  .data-item { flex-wrap: wrap; }
+  .item-actions { width: 100%; justify-content: flex-end; margin-top: 4px; }
+  .topnav-breadcrumb { min-width: 0; overflow: hidden; }
+  .crumb-current { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; display: inline-block; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  #page-reports .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .page-content { padding: 12px; }
+  .card { padding: 16px; }
+  .page-header h2 { font-size: 1.2rem; }
+  .btn-logout { font-size: 0.68rem; padding: 4px 8px; }
 }

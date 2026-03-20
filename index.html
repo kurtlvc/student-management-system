@@ -3,542 +3,597 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scholaris LMS — Polytechnic University of Cabuyao</title>
+  <title>Scholaris — Sign In</title>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:     #0f1923;
+      --ink-2:   #374151;
+      --ink-3:   #6b7280;
+      --ink-4:   #9ca3af;
+      --line:    #e5e7eb;
+      --bg:      #f9fafb;
+      --white:   #ffffff;
+      --blue:    #2563eb;
+      --blue-dk: #1d4ed8;
+      --blue-lt: #eff6ff;
+      --red:     #dc2626;
+      --red-lt:  #fef2f2;
+      --green:   #16a34a;
+      --green-lt:#f0fdf4;
+      --r:       8px;
+      --t:       0.18s ease;
+      --font:    'Sora', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      background: linear-gradient(175deg, #0d2b6e 0%, #1a3f9e 55%, #1e4db7 100%);
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 36px 32px;
+      animation: up 0.3s ease both;
+    }
+
+    @keyframes up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LOGO ── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: var(--ink);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: white; font-weight: 700;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+    .logo-text span {
+      font-weight: 300;
+      color: var(--ink-3);
+      font-size: 0.8rem;
+      display: block;
+      letter-spacing: 0;
+    }
+
+    /* ── HEADING ── */
+    .head { margin-bottom: 22px; }
+    .head h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+    }
+    .head p {
+      font-size: 0.82rem;
+      color: var(--ink-3);
+      margin-top: 3px;
+    }
+
+    /* ── ROLE PILLS ── */
+    .role-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .role-pill {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r);
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--ink-3);
+      cursor: pointer;
+      transition: all var(--t);
+      text-align: center;
+    }
+    .role-pill:hover { border-color: var(--blue); color: var(--blue); }
+    .role-pill.on {
+      border-color: var(--blue);
+      background: var(--blue-lt);
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    /* ── FORM ── */
+    .fields { display: flex; flex-direction: column; gap: 13px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .fg { display: flex; flex-direction: column; gap: 4px; }
+    .fg label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--ink-2);
+      letter-spacing: 0.02em;
+    }
+    .fg input, .fg select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1.5px solid var(--line);
+      border-radius: var(--r);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color var(--t), box-shadow var(--t);
+      outline: none;
+    }
+    .fg input:focus, .fg select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .fg input.err { border-color: var(--red); }
+    .fg input.ok  { border-color: #86efac; }
+    .hint {
+      font-size: 0.68rem;
+      min-height: 12px;
+      font-weight: 500;
+    }
+    .hint.err { color: var(--red); }
+    .hint.ok  { color: var(--green); }
+
+    /* ── ALERT ── */
+    .alert {
+      padding: 10px 12px;
+      border-radius: var(--r);
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: none;
+      margin-bottom: 14px;
+      animation: up 0.2s ease;
+    }
+    .alert.err  { background: var(--red-lt);   color: var(--red);   }
+    .alert.ok   { background: var(--green-lt);  color: var(--green); }
+
+    /* ── BUTTON ── */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: var(--r);
+      font-family: var(--font);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--t), transform var(--t);
+      letter-spacing: 0.01em;
+      margin-top: 4px;
+    }
+    .btn:hover { background: var(--ink-2); }
+    .btn:active { transform: scale(0.98); }
+
+    /* ── SWITCH LINK ── */
+    .switch {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--ink-3);
+    }
+    .switch a {
+      color: var(--blue);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .switch a:hover { text-decoration: underline; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 18px 0 16px;
+      font-size: 0.72rem; color: var(--ink-4);
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--line);
+    }
+
+    /* ── SHAKE ── */
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)}
+    }
+    .shake { animation: shake 0.3s ease; }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px; }
+      .row2 { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <span class="logo-name">Scholaris<span>.</span></span>
-    <span class="logo-sub">Polytechnic University of Cabuyao</span>
-  </div>
+<div class="card" id="mainCard">
 
-  <nav>
-    <div class="nav-section">
-      <div class="nav-section-label">Main</div>
-      <div class="nav-link" data-page="dashboard"><span class="nav-icon">🏠</span> Dashboard</div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-label">Management</div>
-      <div class="nav-link" data-page="students">
-        <span class="nav-icon">🎓</span> Students
-        <span class="nav-badge" id="sidebarStudentBadge">0</span>
-      </div>
-      <div class="nav-link" data-page="teachers">
-        <span class="nav-icon">👨‍🏫</span> Teachers
-        <span class="nav-badge" id="sidebarTeacherBadge">0</span>
-      </div>
-      <div class="nav-link" data-page="sections">
-        <span class="nav-icon">🏫</span> Sections
-        <span class="nav-badge" id="sidebarSectionBadge">0</span>
-      </div>
-      <div class="nav-link" data-page="courses">
-        <span class="nav-icon">📚</span> Subjects
-        <span class="nav-badge" id="sidebarCourseBadge">0</span>
-      </div>
-      <div class="nav-link" data-page="grades">
-        <span class="nav-icon">📝</span> Grades & Attendance
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-label">Analytics</div>
-      <div class="nav-link" data-page="reports"><span class="nav-icon">📊</span> Reports</div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-label">System</div>
-      <div class="nav-link" data-page="settings"><span class="nav-icon">⚙️</span> Settings</div>
-    </div>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="admin-chip">
-      <div class="admin-avatar" id="sidebarAvatar">?</div>
-      <div class="admin-info">
-        <strong id="sidebarUserName">—</strong>
-        <small id="sidebarUserRole">2IT-A · A.Y. 2025–2026</small>
-      </div>
+  <!-- LOGO -->
+  <div class="logo">
+    <div class="logo-mark">S.</div>
+    <div class="logo-text">
+      Scholaris
+      <span>Polytechnic University of Cabuyao</span>
     </div>
   </div>
-</aside>
 
-<div class="main-area">
-  <header class="topnav">
-    <div class="topnav-breadcrumb">
-      <span class="crumb-root">Scholaris</span>
-      <span class="sep">›</span>
-      <span class="crumb-current" id="breadcrumbCurrent">Dashboard</span>
-    </div>
-    <div class="topnav-right">
-      <span class="topnav-date" id="topnavDate"></span>
-      <span class="topnav-pill">2IT-A</span>
-      <div class="session-chip" id="sessionChip">
-        <span class="session-role" id="sessionRole"></span>
-        <span class="session-name" id="sessionName"></span>
-      </div>
-      <button class="btn-logout" onclick="app.logout()" title="Sign out">⎋ Logout</button>
-    </div>
-  </header>
-
-  <main class="page-content">
-
-    <!-- ── DASHBOARD ── -->
-    <div class="page-view" id="page-dashboard">
-      <div class="page-header">
-        <div>
-          <h2>Dashboard</h2>
-          <p>Welcome back — here's a snapshot of your LMS.</p>
-        </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon green">🎓</div>
-          <div><span class="stat-val" id="dashStudents">0</span><span class="stat-label">Students</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue">👨‍🏫</div>
-          <div><span class="stat-val" id="dashTeachers">0</span><span class="stat-label">Teachers</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon purple">🏫</div>
-          <div><span class="stat-val" id="dashSections">0</span><span class="stat-label">Sections</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon gold">📚</div>
-          <div><span class="stat-val" id="dashCourses">0</span><span class="stat-label">Subjects</span></div>
-        </div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">🕐</span> Recent Students</div>
-          </div>
-          <table class="mini-table">
-            <thead><tr><th>Name</th><th>ID</th><th>Section</th><th>Avg Grade</th></tr></thead>
-            <tbody id="recentStudentsBody"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">📋</span> Activity Log</div>
-          </div>
-          <div class="activity-list" id="activityList"></div>
-        </div>
-      </div>
+  <!-- ══ VIEW: LOGIN ══ -->
+  <div id="v-login">
+    <div class="head">
+      <h2>Sign in</h2>
+      <p>Enter your credentials to continue.</p>
     </div>
 
-    <!-- ── STUDENTS ── -->
-    <div class="page-view" id="page-students">
-      <div class="page-header">
-        <div><h2>Students</h2><p>Register and manage student records and enrollments.</p></div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">➕</span> Register New Student</div>
-          </div>
-          <div class="form-group">
-            <label for="stuName">Full Name</label>
-            <input type="text" id="stuName" placeholder="e.g. Juan Dela Cruz" autocomplete="off" oninput="this.value=this.value.replace(/[^a-zA-Z\s\-'.]/g,'')">
-            <span class="field-msg" id="stuName-msg"></span>
-          </div>
-          <div class="form-group">
-            <label for="stuEmail">Email Address</label>
-            <input type="email" id="stuEmail" placeholder="e.g. juan@email.com" autocomplete="off">
-            <span class="field-msg" id="stuEmail-msg"></span>
-          </div>
-          <div class="form-group">
-            <label for="stuId">Student ID</label>
-            <input type="text" id="stuId" placeholder="e.g. 202400001" autocomplete="off" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-            <span class="field-msg" id="stuId-msg"></span>
-          </div>
-          <div class="form-group">
-            <label for="stuSection">Section</label>
-            <select id="stuSection">
-              <option value="">— Select Section —</option>
-            </select>
-          </div>
-          <button class="btn-primary" onclick="app.studentManager.add()">＋ Register Student</button>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">👥</span> Student Profiles</div>
-            <span class="student-count">0 student(s)</span>
-          </div>
-          <div class="search-row">
-            <input type="text" id="stuSearch" placeholder="🔍  Search students...">
-            <select id="stuField">
-              <option value="all">All Fields</option>
-              <option value="name">Name</option>
-              <option value="studentId">ID Number</option>
-              <option value="section">Section</option>
-            </select>
-          </div>
-          <div class="data-list" id="studentList"></div>
-        </div>
-      </div>
+    <div class="role-row" id="loginRoles">
+      <button class="role-pill on" data-role="admin">Admin</button>
+      <button class="role-pill" data-role="teacher">Teacher</button>
     </div>
 
-    <!-- ── TEACHERS ── -->
-    <div class="page-view" id="page-teachers">
-      <div class="page-header">
-        <div><h2>Teachers</h2><p>Register and manage teacher accounts.</p></div>
+    <div class="alert" id="loginAlert"></div>
+
+    <div class="fields">
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="lEmail" placeholder="you@email.com" autocomplete="off">
       </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">➕</span> Register New Teacher</div>
-          </div>
-          <div class="form-group">
-            <label for="tchName">Full Name</label>
-            <input type="text" id="tchName" placeholder="e.g. Maria Santos" autocomplete="off">
-            <span class="field-msg" id="tchName-msg"></span>
-          </div>
-          <div class="form-group">
-            <label for="tchEmail">Email Address</label>
-            <input type="email" id="tchEmail" placeholder="e.g. msantos@pnc.edu.ph" autocomplete="off">
-            <span class="field-msg" id="tchEmail-msg"></span>
-          </div>
-          <div class="form-group">
-            <label for="tchId">Employee ID</label>
-            <input type="text" id="tchId" placeholder="e.g. EMP-001" autocomplete="off">
-            <span class="field-msg" id="tchId-msg"></span>
-          </div>
-          <div class="form-group">
-            <label for="tchDept">Department</label>
-            <input type="text" id="tchDept" placeholder="e.g. College of Computing Studies">
-          </div>
-          <button class="btn-primary" onclick="app.teacherManager.add()">＋ Register Teacher</button>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">👨‍🏫</span> Teacher Registry</div>
-            <span id="teacherCount" class="student-count">0 teacher(s)</span>
-          </div>
-          <div class="search-row">
-            <input type="text" id="tchSearch" placeholder="🔍  Search teachers...">
-          </div>
-          <div class="data-list" id="teacherList"></div>
-        </div>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="lPass" placeholder="••••••••">
       </div>
+      <button class="btn" onclick="auth.login()">Sign in</button>
     </div>
 
-    <!-- ── SECTIONS ── -->
-    <div class="page-view" id="page-sections">
-      <div class="page-header">
-        <div><h2>Sections</h2><p>Manage sections and assign teachers.</p></div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">➕</span> Create New Section</div>
-          </div>
-          <div class="form-group">
-            <label for="secName">Section Name</label>
-            <input type="text" id="secName" placeholder="e.g. 2IT-A">
-          </div>
-          <div class="form-group">
-            <label for="secYear">Year Level</label>
-            <select id="secYear">
-              <option value="">— Select Year —</option>
-              <option>1st Year</option>
-              <option>2nd Year</option>
-              <option>3rd Year</option>
-              <option>4th Year</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="secTeacher">Assigned Teacher</label>
-            <select id="secTeacher">
-              <option value="">— Select Teacher —</option>
-            </select>
-          </div>
-          <button class="btn-primary" onclick="app.sectionManager.add()">＋ Create Section</button>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">🏫</span> Section List</div>
-            <span id="sectionCount" class="student-count">0 section(s)</span>
-          </div>
-          <div class="data-list" id="sectionList"></div>
-        </div>
-      </div>
+  </div>
+
+  <!-- ══ VIEW: STUDENT REGISTRATION ══ -->
+  <div id="v-reg-student" style="display:none;">
+    <div class="head">
+      <h2>Student registration</h2>
+      <p>Create your student account.</p>
     </div>
 
-    <!-- ── SUBJECTS ── -->
-    <div class="page-view" id="page-courses">
-      <div class="page-header">
-        <div><h2>Subjects</h2><p>Create and manage the subject catalog.</p></div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">➕</span> Create New Subject</div>
-          </div>
-          <div class="form-group">
-            <label for="crsName">Subject Name</label>
-            <input type="text" id="crsName" placeholder="e.g. Data Structures">
-          </div>
-          <div class="form-group">
-            <label for="crsCode">Subject Code</label>
-            <input type="text" id="crsCode" placeholder="e.g. CS201">
-          </div>
-          <button class="btn-primary" onclick="app.courseManager.add()">＋ Add Subject</button>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">📋</span> Subject Catalog</div>
-            <span class="student-count" id="courseCount">0 subject(s)</span>
-          </div>
-          <div class="search-row">
-            <input type="text" id="crsSearch" placeholder="🔍  Search subjects...">
-          </div>
-          <div class="data-list" id="courseList"></div>
-        </div>
-      </div>
-    </div>
+    <div class="alert" id="stuAlert"></div>
 
-    <!-- ── GRADES & ATTENDANCE ── -->
-    <div class="page-view" id="page-grades">
-      <div class="page-header">
-        <div><h2>Grades &amp; Attendance</h2><p>Record and manage student grades and attendance per subject.</p></div>
-      </div>
-
-      <div class="card" style="margin-bottom:20px;">
-        <div class="card-head">
-          <div class="card-title"><span class="card-title-icon">🔎</span> Select Student &amp; Subject</div>
+    <div class="fields">
+      <div class="row2">
+        <div class="fg">
+          <label>First name</label>
+          <input type="text" id="sFn" placeholder="Juan" autocomplete="off">
+          <span class="hint" id="sFn-h"></span>
         </div>
-        <div class="search-row" style="flex-wrap:wrap;gap:10px;">
-          <select id="gradeStudentSelect" style="flex:1;min-width:180px;">
-            <option value="">— Select Student —</option>
+        <div class="fg">
+          <label>Last name</label>
+          <input type="text" id="sLn" placeholder="Dela Cruz" autocomplete="off">
+          <span class="hint" id="sLn-h"></span>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="sEmail" placeholder="juan@email.com" autocomplete="off">
+        <span class="hint" id="sEmail-h"></span>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Student ID</label>
+          <input type="text" id="sId" placeholder="202400001" oninput="this.value=this.value.replace(/\D/g,'')">
+          <span class="hint" id="sId-h"></span>
+        </div>
+        <div class="fg">
+          <label>Year Level</label>
+          <select id="sYear">
+            <option value="">— Select —</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
           </select>
-          <select id="gradeSubjectSelect" style="flex:1;min-width:180px;">
-            <option value="">— Select Subject —</option>
+          <span class="hint" id="sYear-h"></span>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Password</label>
+          <input type="password" id="sPass" placeholder="Min. 6 chars">
+          <span class="hint" id="sPass-h"></span>
+        </div>
+        <div class="fg">
+          <label>Confirm password</label>
+          <input type="password" id="sPass2" placeholder="Repeat">
+          <span class="hint" id="sPass2-h"></span>
+        </div>
+      </div>
+      <button class="btn" onclick="auth.registerStudent()">Create account</button>
+    </div>
+
+    <div class="switch">Already have an account? <a onclick="auth.show('login')">Sign in</a></div>
+  </div>
+
+  <!-- ══ VIEW: TEACHER REGISTRATION ══ -->
+  <div id="v-reg-teacher" style="display:none;">
+    <div class="head">
+      <h2>Teacher registration</h2>
+      <p>Create your teacher account.</p>
+    </div>
+
+    <div class="alert" id="tchAlert"></div>
+
+    <div class="fields">
+      <div class="row2">
+        <div class="fg">
+          <label>First name</label>
+          <input type="text" id="tFn" placeholder="Maria" autocomplete="off">
+          <span class="hint" id="tFn-h"></span>
+        </div>
+        <div class="fg">
+          <label>Last name</label>
+          <input type="text" id="tLn" placeholder="Santos" autocomplete="off">
+          <span class="hint" id="tLn-h"></span>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" id="tEmail" placeholder="msantos@pnc.edu.ph" autocomplete="off">
+        <span class="hint" id="tEmail-h"></span>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Employee ID</label>
+          <input type="text" id="tId" placeholder="EMP-001" autocomplete="off">
+          <span class="hint" id="tId-h"></span>
+        </div>
+      <div class="fg">
+          <label>Department</label>
+          <select id="tDept">
+            <option value="">— Select —</option>
+            <optgroup label="CCS">
+              <option value="CCS - Information Technology">CCS · IT</option>
+              <option value="CCS - Computer Science">CCS · CS</option>
+            </optgroup>
+            <optgroup label="COE">
+              <option value="COE - Industrial Engineering">COE · IE</option>
+              <option value="COE - Computer Engineering">COE · CPE</option>
+              <option value="COE - Electronics Engineering">COE · ECE</option>
+            </optgroup>
+            <optgroup label="COED">
+              <option value="COED - Elementary Education">COED · BEED</option>
+              <option value="COED - Secondary Education">COED · BSED</option>
+            </optgroup>
+            <optgroup label="CBAA">
+              <option value="CBAA - Accountancy">CBAA · BSA</option>
+              <option value="CBAA - Business Administration">CBAA · BSBA</option>
+            </optgroup>
+            <optgroup label="CHAS">
+              <option value="CHAS - Nursing">CHAS · Nursing</option>
+            </optgroup>
+            <optgroup label="CAS">
+              <option value="CAS - Psychology">CAS · Psychology</option>
+            </optgroup>
           </select>
-          <button class="btn-ghost" onclick="app.gradesManager.load()">Load Record</button>
         </div>
       </div>
-
-      <div id="gradeRecordArea" style="display:none;">
-        <div class="two-col">
-          <div class="card">
-            <div class="card-head">
-              <div class="card-title"><span class="card-title-icon">📝</span> Grade Entry</div>
-            </div>
-            <div id="gradeStudentInfo" style="margin-bottom:14px;padding:10px 12px;background:var(--green-faint);border-radius:var(--radius-sm);font-size:0.83rem;"></div>
-            <div class="form-group">
-              <label>Prelim Grade (0–100)</label>
-              <input type="number" id="gradePrelim" min="0" max="100" placeholder="e.g. 87">
-            </div>
-            <div class="form-group">
-              <label>Midterm Grade (0–100)</label>
-              <input type="number" id="gradeMidterm" min="0" max="100" placeholder="e.g. 90">
-            </div>
-            <div class="form-group">
-              <label>Finals Grade (0–100)</label>
-              <input type="number" id="gradeFinals" min="0" max="100" placeholder="e.g. 85">
-            </div>
-            <div class="form-group">
-              <label>Computed Final Grade</label>
-              <div id="computedGrade" class="computed-grade-box">—</div>
-            </div>
-            <button class="btn-primary" onclick="app.gradesManager.save()">💾 Save Grade</button>
-          </div>
-
-          <div class="card">
-            <div class="card-head">
-              <div class="card-title"><span class="card-title-icon">📅</span> Attendance Record</div>
-            </div>
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="attendDate">
-            </div>
-            <div class="form-group">
-              <label>Status</label>
-              <select id="attendStatus">
-                <option value="present">Present</option>
-                <option value="absent">Absent</option>
-                <option value="late">Late</option>
-                <option value="excused">Excused</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Remarks (optional)</label>
-              <input type="text" id="attendRemarks" placeholder="e.g. Medical certificate submitted">
-            </div>
-            <button class="btn-primary" onclick="app.gradesManager.addAttendance()" style="margin-bottom:14px;">＋ Log Attendance</button>
-
-            <div class="card-head" style="margin-top:10px;">
-              <div class="card-title" style="font-size:0.85rem;">Attendance History</div>
-              <div id="attendSummary" style="font-size:0.75rem;color:var(--n500);"></div>
-            </div>
-            <div class="data-list" id="attendanceList" style="max-height:200px;"></div>
-          </div>
+      <div class="row2">
+        <div class="fg">
+          <label>Password</label>
+          <input type="password" id="tPass" placeholder="Min. 6 chars">
+          <span class="hint" id="tPass-h"></span>
+        </div>
+        <div class="fg">
+          <label>Confirm password</label>
+          <input type="password" id="tPass2" placeholder="Repeat">
+          <span class="hint" id="tPass2-h"></span>
         </div>
       </div>
-
-      <div id="gradeEmptyState" class="empty-state" style="margin-top:40px;">
-        <div class="empty-icon">📝</div>
-        <p>Select a student and subject above, then click <strong>Load Record</strong>.</p>
-      </div>
+      <button class="btn" onclick="auth.registerTeacher()">Create account</button>
     </div>
 
-    <!-- ── REPORTS ── -->
-    <div class="page-view" id="page-reports">
-      <div class="page-header">
-        <div><h2>Reports</h2><p>Enrollment analytics, grades, and student performance.</p></div>
-      </div>
+    <div class="switch">Already have an account? <a onclick="auth.show('login')">Sign in</a></div>
+  </div>
 
-      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
-        <div class="stat-card">
-          <div class="stat-icon green">🎓</div>
-          <div><span class="stat-val" id="rptTotalStudents">0</span><span class="stat-label">Total Students</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue">👨‍🏫</div>
-          <div><span class="stat-val" id="rptTotalTeachers">0</span><span class="stat-label">Total Teachers</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon gold">📚</div>
-          <div><span class="stat-val" id="rptTotalCourses">0</span><span class="stat-label">Total Subjects</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon purple">🔗</div>
-          <div><span class="stat-val" id="rptTotalEnr">0</span><span class="stat-label">Total Enrollments</span></div>
-        </div>
-      </div>
-
-      <div class="two-col" style="margin-bottom:20px;">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">📐</span> Key Metrics</div>
-          </div>
-          <div class="report-row">
-            <span class="r-label">Average subject load</span>
-            <span class="r-val" id="rptAvgLoad">0</span>
-          </div>
-          <div class="report-row">
-            <span class="r-label">Students with full load (≥ 3)</span>
-            <span class="r-val" id="rptFullLoad">0</span>
-          </div>
-          <div class="report-row">
-            <span class="r-label">Students with no enrollment</span>
-            <span class="r-val" id="rptNoEnr">0</span>
-          </div>
-          <div class="report-row">
-            <span class="r-label">Students with grades recorded</span>
-            <span class="r-val" id="rptWithGrades">0</span>
-          </div>
-          <div class="report-row">
-            <span class="r-label">Overall class average grade</span>
-            <span class="r-val" id="rptClassAvg">—</span>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">📊</span> Enrollment per Subject</div>
-          </div>
-          <div id="courseEnrollBars"></div>
-        </div>
-      </div>
-
-      <!-- Student Performance Table -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><span class="card-title-icon">🏆</span> Student Performance Report</div>
-          <div style="display:flex;gap:8px;">
-            <select id="rptSectionFilter" style="font-size:0.76rem;padding:4px 8px;">
-              <option value="all">All Sections</option>
-            </select>
-            <select id="rptStatusFilter" style="font-size:0.76rem;padding:4px 8px;">
-              <option value="all">All Status</option>
-              <option value="passed">Passed</option>
-              <option value="failed">Failed</option>
-              <option value="incomplete">Incomplete</option>
-            </select>
-          </div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="mini-table" id="performanceTable">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>ID</th>
-                <th>Section</th>
-                <th>Subjects</th>
-                <th>Avg Grade</th>
-                <th>Attendance</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="performanceBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SETTINGS ── -->
-    <div class="page-view" id="page-settings">
-      <div class="page-header">
-        <div><h2>Settings</h2><p>System preferences and configuration.</p></div>
-      </div>
-      <div class="two-col">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">🏫</span> System Info</div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Institution</strong><small>Polytechnic University of Cabuyao</small></div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Academic Year</strong><small>2025 – 2026</small></div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Section</strong><small>2IT-A</small></div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>System Version</strong><small>Scholaris LMS v2.0</small></div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Storage</strong><small>Browser localStorage</small></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><span class="card-title-icon">⚙️</span> Preferences</div>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Show enrollment count on sidebar</strong><small>Display live badge counters on nav</small></div>
-            <label class="toggle-switch"><input type="checkbox" checked><div class="toggle-track"></div></label>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Confirm before deleting</strong><small>Show a prompt before removing records</small></div>
-            <label class="toggle-switch"><input type="checkbox" checked><div class="toggle-track"></div></label>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Activity log</strong><small>Track recent changes on the dashboard</small></div>
-            <label class="toggle-switch"><input type="checkbox" checked><div class="toggle-track"></div></label>
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-info"><strong>Passing grade threshold</strong><small>Minimum grade to pass (default: 75)</small></div>
-            <input type="number" id="passThreshold" value="75" min="50" max="100" style="width:70px;padding:5px 8px;font-size:0.82rem;">
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <footer class="page-footer">
-    <span>Scholaris LMS v2.0</span> — Polytechnic University of Cabuyao &nbsp;·&nbsp; A.Y. 2025–2026 &nbsp;·&nbsp; 2IT-A
-    <span style="color:var(--n400);font-weight:400;">All data stored locally in your browser.</span>
-  </footer>
 </div>
 
-<script src="app.js"></script>
+<script>
+const DB = {
+  accts:    () => JSON.parse(localStorage.getItem('pnc_accounts') || '[]'),
+  students: () => JSON.parse(localStorage.getItem('pnc_students') || '[]'),
+  teachers: () => JSON.parse(localStorage.getItem('pnc_teachers') || '[]'),
+  sections: () => JSON.parse(localStorage.getItem('pnc_sections') || '[]'),
+  saveAccts:(d) => localStorage.setItem('pnc_accounts', JSON.stringify(d)),
+  saveStus: (d) => localStorage.setItem('pnc_students', JSON.stringify(d)),
+  saveTchs: (d) => localStorage.setItem('pnc_teachers', JSON.stringify(d)),
+};
+
+// Seed default admin
+(function() {
+  const a = DB.accts();
+  if (!a.some(x => x.role === 'admin')) {
+    a.push({ email: 'admin@pnc.edu.ph', password: 'admin123', role: 'admin', name: 'Admin' });
+    DB.saveAccts(a);
+  }
+})();
+
+const h = (id, msg, type) => {
+  $(`#${id}-h`).text(msg).removeClass('ok err').addClass(type);
+  $(`#${id}`).removeClass('ok err').addClass(type === 'ok' ? 'ok' : 'err');
+};
+const ch = (id) => { $(`#${id}-h`).text('').removeClass('ok err'); $(`#${id}`).removeClass('ok err'); };
+const showAlert = (id, msg, type) => $(`#${id}`).text(msg).removeClass('ok err').addClass(type).show();
+const hideAlert = (id) => $(`#${id}`).hide();
+
+const auth = {
+  role: 'admin',
+
+  show(view) {
+    $('[id^="v-"]').hide();
+    $(`#v-${view}`).show();
+  },
+
+  init() {
+    $('#loginRoles .role-pill').on('click', function() {
+      $('#loginRoles .role-pill').removeClass('on');
+      $(this).addClass('on');
+      auth.role = $(this).data('role');
+    });
+
+    // Live validation — student
+    $('#sFn').on('input', function() { this.value.trim().length >= 2 ? h('sFn','✓','ok') : ch('sFn'); });
+    $('#sLn').on('input', function() { this.value.trim().length >= 2 ? h('sLn','✓','ok') : ch('sLn'); });
+    $('#sEmail').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('sEmail'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { h('sEmail','Invalid email.','err'); return; }
+      DB.accts().some(a => a.email.toLowerCase() === v.toLowerCase()) ? h('sEmail','Already registered.','err') : h('sEmail','✓','ok');
+    });
+    $('#sId').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('sId'); return; }
+      if (v.length < 4) { h('sId','Min 4 digits.','err'); return; }
+      DB.students().some(s => s.studentId === v) ? h('sId','ID exists.','err') : h('sId','✓','ok');
+    });
+    const livePass = (p, c) => {
+      $(`#${p}, #${c}`).on('input', () => {
+        const pv = $(`#${p}`).val(), cv = $(`#${c}`).val();
+        pv.length >= 6 ? h(p,'✓','ok') : (pv ? h(p,'Min 6 chars.','err') : ch(p));
+        if (cv) cv === pv ? h(c,'✓','ok') : h(c,'Mismatch.','err'); else ch(c);
+      });
+    };
+    livePass('sPass','sPass2');
+
+    // Live validation — teacher
+    $('#tFn').on('input', function() { this.value.trim().length >= 2 ? h('tFn','✓','ok') : ch('tFn'); });
+    $('#tLn').on('input', function() { this.value.trim().length >= 2 ? h('tLn','✓','ok') : ch('tLn'); });
+    $('#tEmail').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('tEmail'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { h('tEmail','Invalid email.','err'); return; }
+      DB.accts().some(a => a.email.toLowerCase() === v.toLowerCase()) ? h('tEmail','Already registered.','err') : h('tEmail','✓','ok');
+    });
+    $('#tId').on('input', function() {
+      const v = this.value.trim();
+      if (!v) { ch('tId'); return; }
+      DB.teachers().some(t => t.employeeId.toLowerCase() === v.toLowerCase()) ? h('tId','ID exists.','err') : h('tId','✓','ok');
+    });
+    livePass('tPass','tPass2');
+
+    $('#lEmail, #lPass').on('keydown', e => { if (e.key === 'Enter') auth.login(); });
+  },
+
+  login() {
+    const email = $('#lEmail').val().trim().toLowerCase();
+    const pass  = $('#lPass').val();
+    hideAlert('loginAlert');
+    if (!email || !pass) { showAlert('loginAlert','Please fill in all fields.','err'); return; }
+    const acct = DB.accts().find(a => a.email.toLowerCase() === email && a.password === pass && a.role === this.role);
+    if (!acct) {
+      showAlert('loginAlert','Incorrect email, password, or role.','err');
+      $('#lEmail,#lPass').addClass('shake');
+      setTimeout(() => $('#lEmail,#lPass').removeClass('shake'), 350);
+      return;
+    }
+    sessionStorage.setItem('pnc_session', JSON.stringify({ email: acct.email, role: acct.role, name: acct.name, refId: acct.refId }));
+    window.location.href = 'index.html';
+  },
+
+  registerStudent() {
+    hideAlert('stuAlert');
+    const fn = $('#sFn').val().trim(), ln = $('#sLn').val().trim();
+    const email = $('#sEmail').val().trim(), id = $('#sId').val().trim();
+    const year = $('#sYear').val(), pass = $('#sPass').val(), pass2 = $('#sPass2').val();
+    let ok = true;
+
+    if (fn.length < 2) { h('sFn','Required.','err'); ok=false; }
+    if (ln.length < 2) { h('sLn','Required.','err'); ok=false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { h('sEmail','Invalid email.','err'); ok=false; }
+    else if (DB.accts().some(a => a.email.toLowerCase()===email.toLowerCase())) { h('sEmail','Already registered.','err'); ok=false; }
+    if (id.length < 4) { h('sId','Min 4 digits.','err'); ok=false; }
+    else if (DB.students().some(s => s.studentId===id)) { h('sId','ID exists.','err'); ok=false; }
+    if (!year) { h('sYear','Please select a year level.','err'); ok=false; }
+    if (pass.length < 6) { h('sPass','Min 6 chars.','err'); ok=false; }
+    if (pass !== pass2)  { h('sPass2','Mismatch.','err'); ok=false; }
+    if (!ok) { showAlert('stuAlert','Please fix the errors above.','err'); return; }
+
+    const name = `${fn} ${ln}`;
+    const stus = DB.students();
+    stus.push({ name, email, studentId: id, section: '', yearLevel: year, enrolledCourses: [] });
+    DB.saveStus(stus);
+    const a = DB.accts();
+    a.push({ email, password: pass, role: 'student', name, refId: id });
+    DB.saveAccts(a);
+
+    showAlert('stuAlert','Account created! Redirecting to login…','ok');
+    setTimeout(() => {
+      this.show('login'); hideAlert('stuAlert');
+      $('#lEmail').val(email);
+      $('#loginRoles .role-pill').removeClass('on'); $('[data-role="student"]').addClass('on'); this.role='student';
+    }, 1600);
+  },
+
+  registerTeacher() {
+    hideAlert('tchAlert');
+    const fn = $('#tFn').val().trim(), ln = $('#tLn').val().trim();
+    const email = $('#tEmail').val().trim(), empId = $('#tId').val().trim();
+    const dept = $('#tDept').val().trim(), pass = $('#tPass').val(), pass2 = $('#tPass2').val();
+    let ok = true;
+
+    if (fn.length < 2) { h('tFn','Required.','err'); ok=false; }
+    if (ln.length < 2) { h('tLn','Required.','err'); ok=false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { h('tEmail','Invalid email.','err'); ok=false; }
+    else if (DB.accts().some(a => a.email.toLowerCase()===email.toLowerCase())) { h('tEmail','Already registered.','err'); ok=false; }
+    if (!empId) { h('tId','Required.','err'); ok=false; }
+    else if (DB.teachers().some(t => t.employeeId.toLowerCase()===empId.toLowerCase())) { h('tId','ID exists.','err'); ok=false; }
+    if (pass.length < 6) { h('tPass','Min 6 chars.','err'); ok=false; }
+    if (pass !== pass2)  { h('tPass2','Mismatch.','err'); ok=false; }
+    if (!ok) { showAlert('tchAlert','Please fix the errors above.','err'); return; }
+
+    const name = `${fn} ${ln}`;
+    const tchs = DB.teachers(); tchs.push({ name, email, employeeId: empId, department: dept }); DB.saveTchs(tchs);
+    const a = DB.accts(); a.push({ email, password: pass, role: 'teacher', name, refId: empId }); DB.saveAccts(a);
+
+    showAlert('tchAlert','Account created! Redirecting to login…','ok');
+    setTimeout(() => {
+      this.show('login'); hideAlert('tchAlert');
+      $('#lEmail').val(email);
+      $('#loginRoles .role-pill').removeClass('on'); $('[data-role="teacher"]').addClass('on'); this.role='teacher';
+    }, 1600);
+  }
+};
+
+$(document).ready(() => auth.init());
+</script>
 </body>
 </html>

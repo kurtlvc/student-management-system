@@ -321,10 +321,15 @@
           <span class="hint" id="sId-h"></span>
         </div>
         <div class="fg">
-          <label>Section</label>
-          <select id="sSec">
+          <label>Year Level</label>
+          <select id="sYear">
             <option value="">— Select —</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
           </select>
+          <span class="hint" id="sYear-h"></span>
         </div>
       </div>
       <div class="row2">
@@ -378,9 +383,34 @@
           <input type="text" id="tId" placeholder="EMP-001" autocomplete="off">
           <span class="hint" id="tId-h"></span>
         </div>
-        <div class="fg">
+      <div class="fg">
           <label>Department</label>
-          <input type="text" id="tDept" placeholder="CCS" autocomplete="off">
+          <select id="tDept">
+            <option value="">— Select —</option>
+            <optgroup label="CCS">
+              <option value="CCS - Information Technology">CCS · IT</option>
+              <option value="CCS - Computer Science">CCS · CS</option>
+            </optgroup>
+            <optgroup label="COE">
+              <option value="COE - Industrial Engineering">COE · IE</option>
+              <option value="COE - Computer Engineering">COE · CPE</option>
+              <option value="COE - Electronics Engineering">COE · ECE</option>
+            </optgroup>
+            <optgroup label="COED">
+              <option value="COED - Elementary Education">COED · BEED</option>
+              <option value="COED - Secondary Education">COED · BSED</option>
+            </optgroup>
+            <optgroup label="CBAA">
+              <option value="CBAA - Accountancy">CBAA · BSA</option>
+              <option value="CBAA - Business Administration">CBAA · BSBA</option>
+            </optgroup>
+            <optgroup label="CHAS">
+              <option value="CHAS - Nursing">CHAS · Nursing</option>
+            </optgroup>
+            <optgroup label="CAS">
+              <option value="CAS - Psychology">CAS · Psychology</option>
+            </optgroup>
+          </select>
         </div>
       </div>
       <div class="row2">
@@ -437,10 +467,6 @@ const auth = {
   show(view) {
     $('[id^="v-"]').hide();
     $(`#v-${view}`).show();
-    if (view === 'reg-student') {
-      const sel = $('#sSec').empty().append('<option value="">— Select —</option>');
-      DB.sections().forEach(s => sel.append(`<option value="${s.name}">${s.name} (${s.year})</option>`));
-    }
   },
 
   init() {
@@ -513,7 +539,7 @@ const auth = {
     hideAlert('stuAlert');
     const fn = $('#sFn').val().trim(), ln = $('#sLn').val().trim();
     const email = $('#sEmail').val().trim(), id = $('#sId').val().trim();
-    const sec = $('#sSec').val(), pass = $('#sPass').val(), pass2 = $('#sPass2').val();
+    const year = $('#sYear').val(), pass = $('#sPass').val(), pass2 = $('#sPass2').val();
     let ok = true;
 
     if (fn.length < 2) { h('sFn','Required.','err'); ok=false; }
@@ -522,13 +548,18 @@ const auth = {
     else if (DB.accts().some(a => a.email.toLowerCase()===email.toLowerCase())) { h('sEmail','Already registered.','err'); ok=false; }
     if (id.length < 4) { h('sId','Min 4 digits.','err'); ok=false; }
     else if (DB.students().some(s => s.studentId===id)) { h('sId','ID exists.','err'); ok=false; }
+    if (!year) { h('sYear','Please select a year level.','err'); ok=false; }
     if (pass.length < 6) { h('sPass','Min 6 chars.','err'); ok=false; }
     if (pass !== pass2)  { h('sPass2','Mismatch.','err'); ok=false; }
     if (!ok) { showAlert('stuAlert','Please fix the errors above.','err'); return; }
 
     const name = `${fn} ${ln}`;
-    const stus = DB.students(); stus.push({ name, email, studentId: id, section: sec, enrolledCourses: [] }); DB.saveStus(stus);
-    const a = DB.accts(); a.push({ email, password: pass, role: 'student', name, refId: id }); DB.saveAccts(a);
+    const stus = DB.students();
+    stus.push({ name, email, studentId: id, section: '', yearLevel: year, enrolledCourses: [] });
+    DB.saveStus(stus);
+    const a = DB.accts();
+    a.push({ email, password: pass, role: 'student', name, refId: id });
+    DB.saveAccts(a);
 
     showAlert('stuAlert','Account created! Redirecting to login…','ok');
     setTimeout(() => {
